@@ -16,11 +16,10 @@ import {
   useColorModeValue,
   position
 } from '@chakra-ui/react'
-import { HamburgerIcon } from '@chakra-ui/icons'
 
 const LinkItem = ({ href, path, children }) => {
   const active = path === href
-  const inactiveColor = useColorModeValue('gray200', 'whiteAlpha.900')
+  const inactiveColor = useColorModeValue('gray.800', 'whiteAlpha.900')
   return (
       <Link
         as={NextLink}
@@ -40,7 +39,7 @@ const Navbar = props => {
   return (
     <Box
       position="fixed"
-      as="nav"
+      as="nav" 
       w="100%"
       bg={useColorModeValue('#ffffff40', '#20202380')}
       style={{ backdropFilter: 'blur(10px' }}
@@ -74,6 +73,12 @@ const Navbar = props => {
               </LinkItem>
               <LinkItem href="/socials" path={path}>
                 Socials
+              </LinkItem>
+              <LinkItem href="/socials" path={path}>
+                Posts
+              </LinkItem>
+              <LinkItem href="/socials" path={path}>
+                About
               </LinkItem>
         </Stack>
       </Container>
