@@ -66,7 +66,7 @@ const Navbar = props => {
           width={{base: 'full', md:'auto'}}
           alignItems="center"
           flexGrow={1}
-          mt={{base:4, nmd: 0}}
+          mt={{base:4, nmd: 1}}
           >
               <LinkItem href="/works" path={path}>
                 Works
@@ -74,10 +74,10 @@ const Navbar = props => {
               <LinkItem href="/socials" path={path}>
                 Socials
               </LinkItem>
-              <LinkItem href="/socials" path={path}>
+              <LinkItem href="/posts" path={path}>
                 Posts
               </LinkItem>
-              <LinkItem href="/socials" path={path}>
+              <LinkItem href="/about" path={path}>
                 About
               </LinkItem>
         </Stack>
