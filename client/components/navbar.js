@@ -1,5 +1,5 @@
 import Logo from './logo'
-import { Link as NextLink } from 'next/link'
+import NextLink  from 'next/link'
 
 import {
   Container,
@@ -16,21 +16,20 @@ import {
   useColorModeValue,
   position
 } from '@chakra-ui/react'
-import { HamburgerIcon } from '@chakra-ui/icons'
 
 const LinkItem = ({ href, path, children }) => {
   const active = path === href
-  const inactiveColor = useColorModeValue('gray200', 'whiteAlpha.900')
+  const inactiveColor = useColorModeValue('gray.800', 'whiteAlpha.900')
   return (
-    <NextLink href={href}>
       <Link
+        as={NextLink}
+        href={href}
         p={2}
         bg={active ? 'glassTeal' : undefined}
         color={active ? '#202023' : inactiveColor}
       >
         {children}
       </Link>
-    </NextLink>
   )
 }
 
@@ -40,7 +39,7 @@ const Navbar = props => {
   return (
     <Box
       position="fixed"
-      as="nav"
+      as="nav" 
       w="100%"
       bg={useColorModeValue('#ffffff40', '#20202380')}
       style={{ backdropFilter: 'blur(10px' }}
@@ -67,7 +66,20 @@ const Navbar = props => {
           width={{base: 'full', md:'auto'}}
           alignItems="center"
           flexGrow={1}
-          mt={{base:4, nmd: 0}}>
+          mt={{base:4, nmd: 1}}
+          >
+              <LinkItem href="/works" path={path}>
+                Works
+              </LinkItem>
+              <LinkItem href="/socials" path={path}>
+                Socials
+              </LinkItem>
+              <LinkItem href="/posts" path={path}>
+                Posts
+              </LinkItem>
+              <LinkItem href="/about" path={path}>
+                About
+              </LinkItem>
         </Stack>
       </Container>
     </Box>
