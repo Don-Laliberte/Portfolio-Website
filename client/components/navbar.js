@@ -16,7 +16,7 @@ import {
   useColorModeValue,
   position
 } from '@chakra-ui/react'
-
+import ThemeToggleButton from './theme-toggle-button'
 const LinkItem = ({ href, path, children }) => {
   const active = path === href
   const inactiveColor = useColorModeValue('gray.800', 'whiteAlpha.900')
@@ -81,6 +81,11 @@ const Navbar = props => {
                 About
               </LinkItem>
         </Stack>
+        <Container
+          position="fixed"
+          right={-225}>
+          <ThemeToggleButton></ThemeToggleButton>
+        </Container>
       </Container>
     </Box>
   )
