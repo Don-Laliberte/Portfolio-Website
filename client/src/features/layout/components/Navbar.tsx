@@ -8,6 +8,7 @@ import { ThemeToggleButton } from './ThemeToggleButton'
 import type { NavItem } from '../types'
 
 const NAV_ITEMS: NavItem[] = [
+  { href: '/resume', label: 'Resume' },
   { href: '/works', label: 'Works' },
   { href: '/socials', label: 'Socials' },
   { href: '/posts', label: 'Posts' },

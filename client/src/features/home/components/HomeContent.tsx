@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { Box, useColorModeValue } from '@chakra-ui/react'
 
 export function HomeContent() {
@@ -54,6 +55,38 @@ export function HomeContent() {
           </Box>
         </Box>
       </Box>
+
+      <Link href="/resume">
+        <Box
+          className="heart-card"
+          bg={cardBg}
+          border="3px solid"
+          borderColor={cardBorder}
+          borderRadius="8px"
+          p={6}
+          textAlign="center"
+          cursor="pointer"
+          transition="all 0.2s"
+          _hover={{
+            borderColor: 'heart.magenta',
+            boxShadow: '0 6px 24px rgba(217,26,122,0.15)',
+            transform: 'translateY(-2px)',
+          }}
+        >
+          <Box
+            as="span"
+            fontFamily="var(--font-heading)"
+            fontSize="1.35rem"
+            fontWeight="600"
+            color={headingColor}
+          >
+            View my resume
+          </Box>
+          <Box as="p" color={subtextColor} fontSize="1.15rem" fontFamily="var(--font-body)" mt={1}>
+            PDF — Full Stack
+          </Box>
+        </Box>
+      </Link>
     </>
   )
 }
