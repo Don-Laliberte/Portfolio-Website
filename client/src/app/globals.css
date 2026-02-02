@@ -1,0 +1,4 @@
+/* Global styles - Chakra handles most styling */
+html {
+  scroll-behavior: smooth;
+}
