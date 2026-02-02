@@ -1,45 +1,114 @@
-/* Persona 5 inspired global styles */
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;600;700&display=swap');
+/* 1BitHeart game UI - pixel fonts, dialogue-box style */
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap');
 
 :root {
-  --font-heading: 'Bebas Neue', sans-serif;
-  --font-body: 'Noto Sans', system-ui, sans-serif;
-  --p5-red: #d92323;
-  --p5-red-dark: #732424;
-  --p5-black: #0d0d0d;
-  --p5-yellow: #f2b705;
-  --p5-cream: #f5f0e8;
+  --font-heading: 'Pixelify Sans', sans-serif;
+  --font-body: 'VT323', monospace;
+  --heart-pink: #f0a8c8;
+  --heart-pink-light: #f8d4e4;
+  --heart-magenta: #d91a7a;
+  --heart-magenta-dark: #b81466;
+  --heart-purple: #7b6b9a;
+  --heart-indigo: #5c4d7a;
+  --heart-cyan: #a8d0e6;
+  --heart-cream: #fef8fb;
+  --heart-charcoal: #4a4a5a;
+  --heart-border: #e8dce4;
+  /* Dialogue box style - dark blue/purple border like the game */
+  --heart-ui-border: #4a4d6a;
+  --heart-ui-bg: #f8f6f4;
+  /* Dark mode - trousers/bitphone purple-blue */
+  --heart-dark-bg: #2a2540;
+  --heart-dark-panel: #352a4a;
+  --heart-dark-border: #4a4060;
+  --heart-dark-text: #f0e8f8;
+  --heart-dark-text-muted: #b8b0c8;
 }
 
 html {
   scroll-behavior: smooth;
 }
 
-/* Diagonal stripe accent - Persona 5 style */
-.p5-stripe-bg {
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 8px,
-    rgba(217, 35, 35, 0.03) 8px,
-    rgba(217, 35, 35, 0.03) 16px
-  );
+/* Slightly larger base for pixel/bitmap readability */
+body {
+  font-size: 1.125rem;
+  line-height: 1.5;
 }
 
-/* Sharp card style - P5 UI panels */
-.p5-card {
-  border: 3px solid var(--p5-black);
-  border-radius: 0;
+/* Diagonal split + geometric stripes - 1BitHeart feel */
+.heart-stripe-bg {
+  background:
+    linear-gradient(165deg, transparent 0%, transparent 45%, rgba(248, 212, 228, 0.15) 45%, rgba(248, 212, 228, 0.15) 55%, transparent 55%),
+    repeating-linear-gradient(
+      -55deg,
+      transparent,
+      transparent 6px,
+      rgba(217, 26, 122, 0.04) 6px,
+      rgba(217, 26, 122, 0.04) 12px
+    ),
+    linear-gradient(180deg, #ffffff 0%, var(--heart-cream) 100%);
+  min-height: 100vh;
+}
+
+/* Dark mode - deep purple-blue (trousers/bitphone) */
+.chakra-ui-dark .heart-stripe-bg,
+html.chakra-ui-dark .heart-stripe-bg {
+  background:
+    linear-gradient(165deg, transparent 0%, transparent 45%, rgba(74, 64, 96, 0.4) 45%, rgba(74, 64, 96, 0.4) 55%, transparent 55%),
+    repeating-linear-gradient(
+      -55deg,
+      transparent,
+      transparent 6px,
+      rgba(217, 26, 122, 0.06) 6px,
+      rgba(217, 26, 122, 0.06) 12px
+    ),
+    linear-gradient(180deg, var(--heart-dark-bg) 0%, #231d35 100%);
+}
+
+/* Card - dialogue box style: distinct border, light off-white bg */
+.heart-card {
+  border: 3px solid var(--heart-ui-border);
+  border-radius: 8px;
   position: relative;
-  box-shadow: 4px 4px 0 var(--p5-black);
+  box-shadow: 0 4px 16px rgba(74, 77, 106, 0.12);
+  background: var(--heart-ui-bg);
 }
 
-.p5-card::before {
+.chakra-ui-dark .heart-card {
+  border-color: var(--heart-dark-border);
+  background: var(--heart-dark-panel);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.heart-card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 4px;
-  background: var(--p5-red);
+  height: 5px;
+  background: linear-gradient(90deg, var(--heart-pink), var(--heart-magenta), var(--heart-purple));
+  border-radius: 5px 5px 0 0;
+}
+
+/* Banner card - no light bg override when it has gradient */
+.heart-card-banner {
+  background: linear-gradient(135deg, var(--heart-pink) 0%, var(--heart-magenta) 50%, var(--heart-purple) 100%) !important;
+  border: 3px solid var(--heart-ui-border);
+}
+
+.chakra-ui-dark .heart-card-banner {
+  border-color: var(--heart-dark-border);
+}
+
+/* White text - game dialogue style with subtle pixel outline */
+.heart-title-text {
+  color: white;
+  text-shadow:
+    0 0 2px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.25),
+    0 0 1px white;
+  font-family: var(--font-body);
+  font-size: 1.5rem;
+  letter-spacing: 0.02em;
 }

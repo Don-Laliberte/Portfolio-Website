@@ -1,12 +1,13 @@
 'use client'
 
-import { useColorMode } from '@chakra-ui/react'
+import { useColorMode, useColorModeValue } from '@chakra-ui/react'
 import { SunIcon, MoonIcon } from '@chakra-ui/icons'
 import { Box } from '@chakra-ui/react'
 
 export function ThemeToggleButton() {
   const { colorMode, toggleColorMode } = useColorMode()
   const isDark = colorMode === 'dark'
+  const borderColor = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
 
   return (
     <Box
@@ -19,14 +20,16 @@ export function ThemeToggleButton() {
       justifyContent="center"
       w={10}
       h={10}
-      bg="p5.red"
+      bg="heart.magenta"
       color="white"
       border="2px solid"
-      borderColor="p5.black"
-      borderRadius={0}
+      borderColor={borderColor}
+      borderRadius="md"
+      boxShadow="0 2px 8px rgba(217,26,122,0.2)"
       _hover={{
-        bg: 'p5.redLight',
+        bg: 'heart.magentaDark',
         transform: 'scale(1.05)',
+        boxShadow: '0 4px 12px rgba(217,26,122,0.25)',
       }}
       _active={{ transform: 'scale(0.98)' }}
       transition="all 0.2s"

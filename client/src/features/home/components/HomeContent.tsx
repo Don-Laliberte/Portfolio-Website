@@ -3,68 +3,52 @@
 import { Box, useColorModeValue } from '@chakra-ui/react'
 
 export function HomeContent() {
-  const cardBg = useColorModeValue('white', 'p5.black')
-  const cardBorder = useColorModeValue('p5.black', 'p5.red')
-  const bannerBg = useColorModeValue('p5.red', 'p5.red')
-  const headingColor = useColorModeValue('p5.black', 'p5.yellow')
-  const subtextColor = useColorModeValue('p5.gray', 'whiteAlpha.800')
+  const cardBg = useColorModeValue('heart.uiBg', 'heart.darkPanel')
+  const cardBorder = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
+  const headingColor = useColorModeValue('heart.charcoal', 'heart.darkText')
+  const subtextColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
 
   return (
     <>
       <Box
-        className="p5-card"
-        bg={bannerBg}
-        color="white"
+        className="heart-card heart-card-banner"
         p={6}
         mb={8}
         textAlign="center"
-        border="3px solid"
-        borderColor="p5.black"
-        borderRadius={0}
-        boxShadow="6px 6px 0 var(--p5-black)"
+        borderRadius="8px"
+        boxShadow="0 4px 20px rgba(74,77,106,0.15)"
+        position="relative"
       >
-        <Box
-          as="p"
-          fontFamily="var(--font-heading), Bebas Neue, sans-serif"
-          fontSize={{ base: 'xl', md: '2xl' }}
-          letterSpacing="wider"
-        >
+        <Box as="p" className="heart-title-text">
           Hello, my name is Don Laliberte and I&apos;m a young aspiring developer!
         </Box>
       </Box>
 
       <Box
-        className="p5-card"
+        className="heart-card"
         bg={cardBg}
         border="3px solid"
         borderColor={cardBorder}
-        borderRadius={0}
+        borderRadius="8px"
         p={8}
-        boxShadow="6px 6px 0 var(--p5-black)"
+        boxShadow="0 4px 16px rgba(74,77,106,0.12)"
         position="relative"
       >
-        <Box
-          position="absolute"
-          top={0}
-          left={0}
-          right={0}
-          h="4px"
-          bg="p5.red"
-        />
         <Box display={{ md: 'flex' }} alignItems="center" gap={6}>
           <Box flexGrow={1}>
             <Box
               as="h2"
-              fontFamily="var(--font-heading), Bebas Neue, sans-serif"
-              fontSize={{ base: '3xl', md: '4xl' }}
-              fontWeight="normal"
-              letterSpacing="wider"
+              fontFamily="var(--font-heading)"
+              fontSize={{ base: '2rem', md: '2.5rem' }}
+              fontWeight="600"
+              letterSpacing="0.02em"
               color={headingColor}
               mb={2}
+              textShadow="0 0 1px white, 0 1px 2px rgba(0,0,0,0.06)"
             >
               Don Laliberte
             </Box>
-            <Box as="p" color={subtextColor} fontSize="lg" fontFamily="var(--font-body)">
+            <Box as="p" color={subtextColor} fontSize="1.5rem" fontFamily="var(--font-body)">
               Software Developer
             </Box>
           </Box>

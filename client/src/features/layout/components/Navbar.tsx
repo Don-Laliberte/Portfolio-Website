@@ -16,10 +16,11 @@ const NAV_ITEMS: NavItem[] = [
 
 function NavLink({ href, path, children }: { href: string; path: string; children: React.ReactNode }) {
   const active = path === href
-  const textColor = useColorModeValue('p5.black', 'white')
-  const activeBg = useColorModeValue('p5.red', 'p5.red')
+  const textColor = useColorModeValue('heart.charcoal', 'heart.darkText')
+  const activeBg = 'heart.magenta'
   const activeColor = 'white'
-  const hoverBg = useColorModeValue('p5.red', 'p5.redLight')
+  const hoverBg = useColorModeValue('heart.pinkLight', 'heart.darkPanel')
+  const borderColor = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
 
   return (
     <Link href={href}>
@@ -28,18 +29,19 @@ function NavLink({ href, path, children }: { href: string; path: string; childre
         display="block"
         px={4}
         py={2}
-        fontFamily="var(--font-heading), Bebas Neue, sans-serif"
-        fontSize="lg"
-        letterSpacing="wider"
+        fontFamily="var(--font-heading)"
+        fontSize={{ base: '1.1rem', md: '1.25rem' }}
+        letterSpacing="0.02em"
         bg={active ? activeBg : 'transparent'}
         color={active ? activeColor : textColor}
+        borderRadius="md"
         border={active ? '2px solid' : '2px solid transparent'}
-        borderColor={active ? 'p5.black' : 'transparent'}
+        borderColor={active ? borderColor : 'transparent'}
         _hover={{
           textDecoration: 'none',
           bg: active ? undefined : hoverBg,
-          color: 'white',
-          borderColor: 'p5.black',
+          color: active ? undefined : 'heart.magenta',
+          borderColor,
         }}
       >
         {children}
@@ -50,8 +52,9 @@ function NavLink({ href, path, children }: { href: string; path: string; childre
 
 export function Navbar() {
   const pathname = usePathname()
-  const navBg = useColorModeValue('white', 'p5.black')
-  const borderColor = useColorModeValue('p5.black', 'p5.red')
+  const navBg = useColorModeValue('heart.uiBg', 'heart.darkPanel')
+  const borderColor = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
+  const navShadow = useColorModeValue('0 2px 16px rgba(74,77,106,0.1)', '0 2px 16px rgba(0,0,0,0.25)')
 
   return (
     <Box
@@ -59,10 +62,10 @@ export function Navbar() {
       as="nav"
       w="100%"
       bg={navBg}
-      borderBottom="4px solid"
+      borderBottom="3px solid"
       borderColor={borderColor}
       zIndex={10}
-      boxShadow="0 4px 0 rgba(0,0,0,0.2)"
+      boxShadow={navShadow}
     >
       <Box
         display="flex"
@@ -77,7 +80,7 @@ export function Navbar() {
         justifyContent="space-between"
       >
         <Box display="flex" alignItems="center" flexShrink={0}>
-          <Box as="h1" fontSize="xl" fontFamily="var(--font-heading), Bebas Neue, sans-serif" letterSpacing="wider">
+          <Box as="h1" fontSize={{ base: '1.25rem', md: '1.5rem' }} fontFamily="var(--font-heading)" letterSpacing="0.02em">
             <Logo />
           </Box>
         </Box>
