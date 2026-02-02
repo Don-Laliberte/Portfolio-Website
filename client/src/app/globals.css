@@ -1,4 +1,45 @@
-/* Global styles - Chakra handles most styling */
+/* Persona 5 inspired global styles */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans:wght@400;600;700&display=swap');
+
+:root {
+  --font-heading: 'Bebas Neue', sans-serif;
+  --font-body: 'Noto Sans', system-ui, sans-serif;
+  --p5-red: #d92323;
+  --p5-red-dark: #732424;
+  --p5-black: #0d0d0d;
+  --p5-yellow: #f2b705;
+  --p5-cream: #f5f0e8;
+}
+
 html {
   scroll-behavior: smooth;
+}
+
+/* Diagonal stripe accent - Persona 5 style */
+.p5-stripe-bg {
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 8px,
+    rgba(217, 35, 35, 0.03) 8px,
+    rgba(217, 35, 35, 0.03) 16px
+  );
+}
+
+/* Sharp card style - P5 UI panels */
+.p5-card {
+  border: 3px solid var(--p5-black);
+  border-radius: 0;
+  position: relative;
+  box-shadow: 4px 4px 0 var(--p5-black);
+}
+
+.p5-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--p5-red);
 }

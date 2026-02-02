@@ -13,14 +13,19 @@ const LogoBox = styled.span`
   height: 30px;
   line-height: 20px;
   padding: 10px;
+  letter-spacing: 0.05em;
 
   &:hover img {
-    transform: rotate(20deg);
+    transform: rotate(-10deg) scale(1.05);
+  }
+  &:hover span {
+    color: var(--p5-red) !important;
   }
 `
 
 export function Logo() {
   const logo = `/images/contents/logo${useColorModeValue('', '-dark')}.png`
+  const textColor = useColorModeValue('p5.black', 'white')
 
   return (
     <Link href="/">
@@ -28,10 +33,13 @@ export function Logo() {
         <Image priority src={logo} width={35} height={35} alt="Don Laliberte logo" />
         <Box
           as="span"
-          color={useColorModeValue('gray.800', 'whiteAlpha.900')}
-          fontFamily="M PLUS Rounded 1, sans-serif"
+          color={textColor}
+          fontFamily="var(--font-heading), Bebas Neue, sans-serif"
           fontWeight="bold"
+          fontSize="xl"
+          letterSpacing="wider"
           ml={3}
+          transition="color 0.2s"
         >
           Don Laliberte
         </Box>
