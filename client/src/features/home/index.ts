@@ -1,1 +1,6 @@
-export { HomeContent } from './components/HomeContent'
+export { AboutSection } from './components/AboutSection'
+export { HeroSection } from './components/HeroSection'
+export { PostsSection } from './components/PostsSection'
+export { ResumeSection } from './components/ResumeSection'
+export { SocialsSection } from './components/SocialsSection'
+export { WorksSection } from './components/WorksSection'
