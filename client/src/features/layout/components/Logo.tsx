@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import Image from 'next/image'
 import { Box, useColorModeValue } from '@chakra-ui/react'
 import styled from '@emotion/styled'
@@ -24,12 +23,25 @@ const LogoBox = styled.span`
   }
 `
 
-export function Logo() {
+interface LogoProps {
+  onHomeClick: () => void
+}
+
+export function Logo({ onHomeClick }: LogoProps) {
   const logo = `/images/contents/logo${useColorModeValue('', '-dark')}.png`
   const textColor = useColorModeValue('heart.charcoal', 'heart.darkText')
 
   return (
-    <Link href="/">
+    <Box
+      as="a"
+      href="#hero"
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault()
+        onHomeClick()
+      }}
+      _hover={{ textDecoration: 'none' }}
+      display="inline-block"
+    >
       <LogoBox>
         <Image priority src={logo} width={35} height={35} alt="Don Laliberte logo" />
         <Box
@@ -45,6 +57,6 @@ export function Logo() {
           Don Laliberte
         </Box>
       </LogoBox>
-    </Link>
+    </Box>
   )
 }

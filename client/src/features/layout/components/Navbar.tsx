@@ -131,28 +131,27 @@ export function Navbar() {
       >
         <Box display="flex" alignItems="center" flexShrink={0}>
           <Box as="h1" fontSize={{ base: '1.25rem', md: '1.5rem' }} fontFamily="var(--font-heading)" letterSpacing="0.02em">
-            <Logo />
+            <Logo onHomeClick={() => scrollToSection('#hero')} />
           </Box>
         </Box>
 
-        <Box
-          display={{ base: 'none', md: 'flex' }}
-          flexDirection="row"
-          alignItems="center"
-          flexGrow={1}
-          justifyContent="flex-end"
-          gap={0}
-          mr={2}
-        >
-          {NAV_ITEMS.map((item) => (
-            <NavLink key={item.href} href={item.href} activeSectionId={activeSectionId}>
-              {item.label}
-            </NavLink>
-          ))}
-        </Box>
-
-        <Box flexShrink={0} ml={4} display="flex" alignItems="center">
-          <ThemeToggleButton />
+        <Box display="flex" alignItems="center" flexShrink={0} gap={0} ml={4}>
+          <Box
+            display={{ base: 'none', md: 'flex' }}
+            flexDirection="row"
+            alignItems="center"
+            gap={0}
+            mr={2}
+          >
+            {NAV_ITEMS.map((item) => (
+              <NavLink key={item.href} href={item.href} activeSectionId={activeSectionId}>
+                {item.label}
+              </NavLink>
+            ))}
+          </Box>
+          <Box display="flex" alignItems="center">
+            <ThemeToggleButton />
+          </Box>
         </Box>
       </Box>
     </Box>
