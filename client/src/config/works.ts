@@ -24,7 +24,7 @@ export const WORK_PROJECTS: WorkProject[] = [
     timeframe: '2025-2026',
     description:
       'Hackathon website for CalgaryHacks 2026 with registration, schedule, and sponsor information in a playful pixel UI.',
-    tech: ['Next.js', 'TypeScript', 'Cloudflare'],
+    tech: ['Next.js', 'React', 'TypeScript', 'Cloudflare'],
     liveUrl: 'https://calgaryhacks.ca',
     logoSrc: '/images/works/calgaryhacks-logo.svg',
     logoAlt: 'CalgaryHacks logo',
@@ -36,7 +36,7 @@ export const WORK_PROJECTS: WorkProject[] = [
     timeframe: '2025-2026',
     description:
       'Website for the Computer Science Undergraduate Society (CSUS) featuring events, resources, and links for students.',
-    tech: ['Next.js', 'TypeScript', 'Cloudflare'],
+    tech: ['Next.js', 'React','TypeScript', 'Cloudflare'],
     liveUrl: 'https://csus.club',
     logoSrc: '/images/works/csus-logo.svg',
     logoAlt: 'CSUS Club logo',
