@@ -176,18 +176,39 @@ export function WorkCard({ project }: WorkCardProps) {
               display="inline-flex"
               alignItems="center"
               justifyContent="center"
-              w={6}
-              h={6}
-              opacity={0.7}
-              transition="opacity 0.2s"
-              _hover={{ opacity: 1 }}
+              w={8}
+              h={8}
+              border="2px solid"
+              borderColor="rgba(0, 0, 0, 0.2)"
+              borderRadius="6px"
+              bg={useColorModeValue('heart.uiBg', 'heart.darkPanel')}
+              transition="all 0.2s"
+              _hover={{
+                borderColor: 'heart.magenta',
+                bg: 'heart.magenta',
+              }}
+              _dark={{
+                borderColor: 'rgba(255, 255, 255, 0.2)',
+                _hover: {
+                  borderColor: 'heart.magenta',
+                  bg: 'heart.magenta',
+                },
+              }}
               aria-label={`Open ${project.name} website`}
+              sx={{
+                '& img': {
+                  transition: 'filter 0.2s',
+                },
+                '&:hover img': {
+                  filter: 'brightness(0) invert(1)',
+                },
+              }}
             >
               <Image
                 src="/icons/link.svg"
                 alt=""
-                width={24}
-                height={24}
+                width={20}
+                height={20}
                 style={{ objectFit: 'contain' }}
               />
             </Box>
