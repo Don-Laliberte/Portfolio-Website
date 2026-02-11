@@ -147,6 +147,12 @@ export function WorkCard({ project }: WorkCardProps) {
                 color={techColor}
                 fontFamily="var(--font-body)"
                 fontSize="0.85rem"
+                transition="all 0.2s"
+                cursor="pointer"
+                _hover={{
+                  bg: 'heart.magenta',
+                  color: 'white',
+                }}
               >
                 {tech}
               </Box>
