@@ -22,6 +22,8 @@ export function WorkCard({ project }: WorkCardProps) {
   const techColor = useColorModeValue('heart.charcoal', 'heart.darkText')
 
   const isAnimatedLogo = project.logoSrc?.includes('csus-logo')
+  const logoW = project.logoWidth ?? 64
+  const logoH = project.logoHeight ?? 64
 
   const handleMouseEnter = () => {
     if (!hoverRef.current && isAnimatedLogo) {
@@ -59,17 +61,17 @@ export function WorkCard({ project }: WorkCardProps) {
       }}
     >
       {project.logoSrc && (
-        <Box mb={4} display="flex" justifyContent="center">
+        <Box className="work-card-logo" mb={4} display="flex" justifyContent="center">
           {isAnimatedLogo ? (
             <Box
               as="object"
               key={`${project.logoSrc}-${animationKey}`}
               data={project.logoSrc}
               type="image/svg+xml"
-              w={16}
-              h={16}
-              maxW="64px"
-              maxH="64px"
+              w={`${logoW}px`}
+              h={`${logoH}px`}
+              maxW={`${logoW}px`}
+              maxH={`${logoH}px`}
               className="animated-logo"
               aria-label={project.logoAlt ?? `${project.name} logo`}
               sx={{
@@ -84,17 +86,18 @@ export function WorkCard({ project }: WorkCardProps) {
               as="img"
               src={project.logoSrc}
               alt={project.logoAlt ?? `${project.name} logo`}
-              w={16}
-              h={16}
-              maxW="64px"
-              maxH="64px"
+              w={`${logoW}px`}
+              h={`${logoH}px`}
+              maxW={`${logoW}px`}
+              maxH={`${logoH}px`}
               objectFit="contain"
             />
           )}
         </Box>
       )}
 
-      <Box mb={3}>
+      <Box flex={1} minH={0} display="flex" flexDirection="column">
+        <Box mb={3}>
         <Box
           as="h3"
           fontFamily="var(--font-heading)"
@@ -128,65 +131,68 @@ export function WorkCard({ project }: WorkCardProps) {
       >
         {project.description}
       </Box>
+      </Box>
 
-      {project.tech && project.tech.length > 0 && (
-        <Box mb={4} display="flex" flexWrap="wrap" gap={2} rowGap={2}>
-          {project.tech.map((tech) => (
-            <Box
-              key={tech}
-              as="span"
-              px={2}
-              py={0.5}
-              borderRadius="full"
-              bg={techBg}
-              color={techColor}
-              fontFamily="var(--font-body)"
-              fontSize="0.85rem"
-            >
-              {tech}
-            </Box>
-          ))}
-        </Box>
-      )}
-
-      <Box mt="auto" display="flex" justifyContent="flex-end" alignItems="center" gap={3}>
-        <Box
-          as="button"
-          onClick={onOpen}
-          fontFamily="var(--font-heading)"
-          fontSize="1rem"
-          fontWeight="600"
-          color={useColorModeValue('heart.indigo', 'heart.cyan')}
-          _hover={{ textDecoration: 'underline' }}
-          cursor="pointer"
-        >
-          View more
-        </Box>
-        {project.liveUrl && (
-          <Box
-            as="a"
-            href={project.liveUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            display="inline-flex"
-            alignItems="center"
-            justifyContent="center"
-            w={6}
-            h={6}
-            opacity={0.7}
-            transition="opacity 0.2s"
-            _hover={{ opacity: 1 }}
-            aria-label={`Open ${project.name} website`}
-          >
-            <Image
-              src="/icons/link.svg"
-              alt=""
-              width={24}
-              height={24}
-              style={{ objectFit: 'contain' }}
-            />
+      <Box>
+        {project.tech && project.tech.length > 0 && (
+          <Box display="flex" flexWrap="wrap" gap={2} rowGap={2}>
+            {project.tech.map((tech) => (
+              <Box
+                key={tech}
+                as="span"
+                px={2}
+                py={0.5}
+                borderRadius="full"
+                bg={techBg}
+                color={techColor}
+                fontFamily="var(--font-body)"
+                fontSize="0.85rem"
+              >
+                {tech}
+              </Box>
+            ))}
           </Box>
         )}
+
+        <Box mt={3} display="flex" justifyContent="flex-end" alignItems="center" gap={3}>
+          <Box
+            as="button"
+            onClick={onOpen}
+            fontFamily="var(--font-heading)"
+            fontSize="1rem"
+            fontWeight="600"
+            color={useColorModeValue('heart.indigo', 'heart.cyan')}
+            _hover={{ textDecoration: 'underline' }}
+            cursor="pointer"
+          >
+            View more
+          </Box>
+          {project.liveUrl && (
+            <Box
+              as="a"
+              href={project.liveUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              display="inline-flex"
+              alignItems="center"
+              justifyContent="center"
+              w={6}
+              h={6}
+              opacity={0.7}
+              transition="opacity 0.2s"
+              _hover={{ opacity: 1 }}
+              aria-label={`Open ${project.name} website`}
+            >
+              <Image
+                src="/icons/link.svg"
+                alt=""
+                width={24}
+                height={24}
+                style={{ objectFit: 'contain' }}
+              />
+            </Box>
+          )}
+        </Box>
       </Box>
 
       <WorkModal isOpen={isOpen} onClose={onClose} project={project} />

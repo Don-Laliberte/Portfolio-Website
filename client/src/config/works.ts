@@ -11,6 +11,9 @@ export type WorkProject = {
   // Optional branding / imagery for future use
   logoSrc?: string
   logoAlt?: string
+  /** Logo display size in pixels (default 64×64 when omitted) */
+  logoWidth?: number
+  logoHeight?: number
   // Extended content for modal
   extendedDescription?: string
   images?: string[]
@@ -28,6 +31,8 @@ export const WORK_PROJECTS: WorkProject[] = [
     liveUrl: 'https://calgaryhacks.ca',
     logoSrc: '/images/works/calgaryhacks-logo.svg',
     logoAlt: 'CalgaryHacks logo',
+    logoWidth: 160,
+    logoHeight: 48,
   },
   {
     id: 'csus-club',
@@ -40,5 +45,7 @@ export const WORK_PROJECTS: WorkProject[] = [
     liveUrl: 'https://csus.club',
     logoSrc: '/images/works/csus-logo.svg',
     logoAlt: 'CSUS Club logo',
+    logoWidth: 140,
+    logoHeight: 36,
   },
 ]
