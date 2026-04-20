@@ -1,41 +1,43 @@
 'use client'
 
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { m } from 'framer-motion'
 import { WORK_PROJECTS } from '@/config/works'
+import { SectionHeading } from '@/components/shared/SectionHeading'
 import { WorkCard } from './WorkCard'
 
-export function WorksSection() {
-  const headingColor = useColorModeValue('heart.charcoal', 'heart.darkText')
-  const subtextColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
-
-  return (
-    <Box>
-      <Box textAlign="center" mb={6} pt={2}>
-        <Box
-          as="h2"
-          fontFamily="var(--font-heading)"
-          fontSize={{ base: '1.75rem', md: '2.25rem' }}
-          fontWeight="600"
-          color={headingColor}
-          mb={2}
-        >
-          Works
-        </Box>
-        <Box as="p" color={subtextColor} fontSize="1.25rem" fontFamily="var(--font-body)">
-          Some things I&apos;ve built and worked on.
-        </Box>
-      </Box>
-
-      <Box
-        display="grid"
-        gridTemplateColumns={{ base: '1fr', md: 'repeat(2, 1fr)' }}
-        gap={6}
-      >
-        {WORK_PROJECTS.map((project) => (
-          <WorkCard key={project.id} project={project} />
-        ))}
-      </Box>
-    </Box>
-  )
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.3 } },
 }
 
+const item = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: 'easeOut' as const } },
+}
+
+export function WorksSection() {
+  return (
+    <div className="flex flex-col">
+      <SectionHeading
+        eyebrow="Portfolio"
+        title="Selected"
+        accent="Works"
+        subtitle="A slice of what I've shipped — more in the vault. Open any card for a closer look."
+      />
+
+      <m.div
+        variants={stagger}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.15 }}
+        className="mt-10 grid gap-5 md:mt-12 md:grid-cols-2 md:gap-6"
+      >
+        {WORK_PROJECTS.map((project) => (
+          <m.div key={project.id} variants={item}>
+            <WorkCard project={project} />
+          </m.div>
+        ))}
+      </m.div>
+    </div>
+  )
+}

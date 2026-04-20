@@ -1,34 +1,41 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { Box, useColorModeValue, useDisclosure } from '@chakra-ui/react'
+import { useRef, useState } from 'react'
 import type { WorkProject } from '@/config/works'
-import { WorkModal } from './WorkModal'
+import { CyberPanel } from '@/components/shared/CyberPanel'
+import { MaskIcon } from '@/components/shared/MaskIcon'
+import { useTheme } from '@/lib/theme-provider'
+
+const WorkModal = dynamic(
+  () => import('./WorkModal').then((m) => m.WorkModal),
+  { ssr: false },
+)
 
 interface WorkCardProps {
   project: WorkProject
 }
 
 export function WorkCard({ project }: WorkCardProps) {
-  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [open, setOpen] = useState(false)
   const [animationKey, setAnimationKey] = useState(0)
   const hoverRef = useRef(false)
-  const cardBg = useColorModeValue('heart.uiBg', 'heart.darkPanel')
-  const cardBorder = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
-  const headingColor = useColorModeValue('heart.charcoal', 'heart.darkText')
-  const subtextColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
-  const techBg = useColorModeValue('heart.pinkLight', 'heart.darkPanel')
-  const techColor = useColorModeValue('heart.charcoal', 'heart.darkText')
+  const { theme } = useTheme()
 
-  const isAnimatedLogo = project.logoSrc?.includes('csus-logo')
+  // Prefer a dark-mode variant if one is configured, otherwise fall back to
+  // the default logo. Key the <object> by the resolved src so switching themes
+  // re-mounts the SVG and replays its stroke-dash animation.
+  const resolvedLogoSrc =
+    theme === 'dark' && project.logoSrcDark ? project.logoSrcDark : project.logoSrc
+  const isAnimatedLogo = resolvedLogoSrc?.includes('csus-logo')
   const logoW = project.logoWidth ?? 64
   const logoH = project.logoHeight ?? 64
 
   const handleMouseEnter = () => {
     if (!hoverRef.current && isAnimatedLogo) {
       hoverRef.current = true
-      setAnimationKey((prev) => prev + 1)
+      setAnimationKey((k) => k + 1)
     }
   }
 
@@ -37,193 +44,116 @@ export function WorkCard({ project }: WorkCardProps) {
   }
 
   return (
-    <Box
-      className="heart-card"
-      bg={cardBg}
-      border="3px solid"
-      borderColor={cardBorder}
-      borderRadius="8px"
-      p={6}
-      boxShadow="0 4px 16px rgba(74,77,106,0.12)"
-      position="relative"
-      display="flex"
-      flexDirection="column"
-      transition="all 0.2s"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      _hover={{
-        borderColor: 'heart.magenta',
-        boxShadow: '0 6px 24px rgba(217,26,122,0.2)',
-        transform: 'translateY(-2px)',
-      }}
-      _dark={{
-        boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
-      }}
-    >
-      {project.logoSrc && (
-        <Box className="work-card-logo" mb={4} display="flex" justifyContent="center">
-          {isAnimatedLogo ? (
-            <Box
-              as="object"
-              key={`${project.logoSrc}-${animationKey}`}
-              data={project.logoSrc}
-              type="image/svg+xml"
-              w={`${logoW}px`}
-              h={`${logoH}px`}
-              maxW={`${logoW}px`}
-              maxH={`${logoH}px`}
-              className="animated-logo"
-              aria-label={project.logoAlt ?? `${project.name} logo`}
-              sx={{
-                '& svg': {
-                  width: '100%',
-                  height: '100%',
-                },
-              }}
-            />
-          ) : (
-            <Box
-              as="img"
-              src={project.logoSrc}
-              alt={project.logoAlt ?? `${project.name} logo`}
-              w={`${logoW}px`}
-              h={`${logoH}px`}
-              maxW={`${logoW}px`}
-              maxH={`${logoH}px`}
-              objectFit="contain"
-            />
-          )}
-        </Box>
-      )}
-
-      <Box flex={1} minH={0} display="flex" flexDirection="column">
-        <Box mb={3}>
-        <Box
-          as="h3"
-          fontFamily="var(--font-heading)"
-          fontSize={{ base: '1.35rem', md: '1.5rem' }}
-          fontWeight="600"
-          color={headingColor}
-          mb={1}
-        >
-          {project.name}
-        </Box>
-        {(project.role || project.timeframe) && (
-          <Box
-            as="p"
-            fontFamily="var(--font-body)"
-            fontSize="1.05rem"
-            color={subtextColor}
-          >
-            {project.role}
-            {project.role && project.timeframe && ' • '}
-            {project.timeframe}
-          </Box>
-        )}
-      </Box>
-
-      <Box
-        as="p"
-        fontFamily="var(--font-body)"
-        fontSize="1.05rem"
-        color={subtextColor}
-        mb={4}
+    <>
+      <CyberPanel
+        hover
+        className="animated-logo-trigger flex h-full flex-col p-6"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
       >
-        {project.description}
-      </Box>
-      </Box>
-
-      <Box>
-        {project.tech && project.tech.length > 0 && (
-          <Box display="flex" flexWrap="wrap" gap={2} rowGap={2}>
-            {project.tech.map((tech) => (
-              <Box
-                key={tech}
-                as="span"
-                px={2}
-                py={0.5}
-                borderRadius="full"
-                bg={techBg}
-                color={techColor}
-                fontFamily="var(--font-body)"
-                fontSize="0.85rem"
-                transition="all 0.2s"
-                cursor="pointer"
-                _hover={{
-                  bg: 'heart.magenta',
-                  color: 'white',
+        {resolvedLogoSrc ? (
+          <div className="mb-4 flex justify-center">
+            {isAnimatedLogo ? (
+              <object
+                key={`${resolvedLogoSrc}-${animationKey}`}
+                data={resolvedLogoSrc}
+                type="image/svg+xml"
+                className="animated-logo"
+                aria-label={project.logoAlt ?? `${project.name} logo`}
+                style={{
+                  width: `${logoW}px`,
+                  height: `${logoH}px`,
+                  maxWidth: `${logoW}px`,
+                  maxHeight: `${logoH}px`,
                 }}
-              >
-                {tech}
-              </Box>
-            ))}
-          </Box>
-        )}
-
-        <Box mt={3} display="flex" justifyContent="flex-end" alignItems="center" gap={3}>
-          <Box
-            as="button"
-            onClick={onOpen}
-            fontFamily="var(--font-heading)"
-            fontSize="1rem"
-            fontWeight="600"
-            color={useColorModeValue('heart.indigo', 'heart.cyan')}
-            _hover={{ textDecoration: 'underline' }}
-            cursor="pointer"
-          >
-            View more
-          </Box>
-          {project.liveUrl && (
-            <Box
-              as="a"
-              href={project.liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              display="inline-flex"
-              alignItems="center"
-              justifyContent="center"
-              w={8}
-              h={8}
-              border="2px solid"
-              borderColor="rgba(0, 0, 0, 0.2)"
-              borderRadius="6px"
-              bg={useColorModeValue('heart.uiBg', 'heart.darkPanel')}
-              transition="all 0.2s"
-              _hover={{
-                borderColor: 'heart.magenta',
-                bg: 'heart.magenta',
-              }}
-              _dark={{
-                borderColor: 'rgba(255, 255, 255, 0.2)',
-                _hover: {
-                  borderColor: 'heart.magenta',
-                  bg: 'heart.magenta',
-                },
-              }}
-              aria-label={`Open ${project.name} website`}
-              sx={{
-                '& img': {
-                  transition: 'filter 0.2s',
-                },
-                '&:hover img': {
-                  filter: 'brightness(0) invert(1)',
-                },
-              }}
-            >
-              <Image
-                src="/icons/link.svg"
-                alt=""
-                width={20}
-                height={20}
-                style={{ objectFit: 'contain' }}
               />
-            </Box>
-          )}
-        </Box>
-      </Box>
+            ) : (
+              <Image
+                key={resolvedLogoSrc}
+                src={resolvedLogoSrc}
+                alt={project.logoAlt ?? `${project.name} logo`}
+                width={logoW}
+                height={logoH}
+                style={{
+                  width: `${logoW}px`,
+                  height: `${logoH}px`,
+                  maxWidth: `${logoW}px`,
+                  maxHeight: `${logoH}px`,
+                  objectFit: 'contain',
+                }}
+              />
+            )}
+          </div>
+        ) : null}
 
-      <WorkModal isOpen={isOpen} onClose={onClose} project={project} />
-    </Box>
+        <div className="flex flex-1 flex-col">
+          <h3
+            className="mb-1 font-display text-2xl font-bold md:text-[1.7rem]"
+            style={{ color: 'rgb(var(--text))' }}
+          >
+            {project.name}
+          </h3>
+
+          {(project.role || project.timeframe) && (
+            <p
+              className="mb-3 font-tech text-xs uppercase tracking-[0.22em]"
+              style={{ color: 'rgb(var(--accent))' }}
+            >
+              {project.role}
+              {project.role && project.timeframe ? ' · ' : ''}
+              {project.timeframe}
+            </p>
+          )}
+
+          <p className="mb-4 text-base leading-relaxed text-muted">
+            {project.description}
+          </p>
+
+          {project.tech && project.tech.length > 0 ? (
+            <div className="mb-4 flex flex-wrap gap-2">
+              {project.tech.map((tech) => (
+                <span key={tech} className="tech-chip">
+                  {tech}
+                </span>
+              ))}
+            </div>
+          ) : null}
+
+          <div className="mt-auto flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setOpen(true)}
+              className="view-more-btn group/view inline-flex items-center gap-1.5 font-tech text-sm uppercase tracking-[0.2em]"
+            >
+              View more
+              <span
+                aria-hidden
+                className="view-more-arrow inline-block transition-transform duration-200"
+              >
+                →
+              </span>
+            </button>
+            {project.liveUrl ? (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Open ${project.name} website`}
+                className="worklink-btn inline-flex h-11 w-11 items-center justify-center rounded-sm"
+              >
+                <MaskIcon
+                  src="/icons/link.svg"
+                  size={18}
+                  color="rgb(var(--accent))"
+                  className="worklink-icon"
+                />
+              </a>
+            ) : null}
+          </div>
+        </div>
+      </CyberPanel>
+
+      <WorkModal open={open} onClose={() => setOpen(false)} project={project} />
+    </>
   )
 }
-

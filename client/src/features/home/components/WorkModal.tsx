@@ -1,337 +1,293 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Image from 'next/image'
-import {
-  Box,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  useColorModeValue,
-} from '@chakra-ui/react'
-import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '@chakra-ui/icons'
+import { AnimatePresence, m } from 'framer-motion'
 import type { WorkProject } from '@/config/works'
 
 interface WorkModalProps {
-  isOpen: boolean
+  open: boolean
   onClose: () => void
   project: WorkProject
 }
 
-export function WorkModal({ isOpen, onClose, project }: WorkModalProps) {
-  const [currentImageIndex, setCurrentImageIndex] = useState(0)
-  const cardBg = useColorModeValue('heart.uiBg', 'heart.darkPanel')
-  const cardBorder = useColorModeValue('heart.uiBorder', 'heart.darkBorder')
-  const headingColor = useColorModeValue('heart.charcoal', 'heart.darkText')
-  const subtextColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
-  const techBg = useColorModeValue('heart.pinkLight', 'heart.darkPanel')
-  const techColor = useColorModeValue('heart.charcoal', 'heart.darkText')
-  const modalBg = useColorModeValue('heart.uiBg', 'heart.darkPanel')
-  const dotInactiveColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
+export function WorkModal({ open, onClose, project }: WorkModalProps) {
+  const [currentImage, setCurrentImage] = useState(0)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const previouslyFocused = useRef<HTMLElement | null>(null)
 
-  const images = project.images || []
+  useEffect(() => {
+    if (!open) return
+
+    previouslyFocused.current = document.activeElement as HTMLElement | null
+    document.body.classList.add('modal-open')
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+        return
+      }
+      if (e.key !== 'Tab') return
+      const focusables = panelRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"]), iframe, input, select, textarea',
+      )
+      if (!focusables || focusables.length === 0) return
+      const first = focusables[0]
+      const last = focusables[focusables.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', onKeyDown)
+    // Focus first element after the open animation starts.
+    const t = window.setTimeout(() => {
+      const first = panelRef.current?.querySelector<HTMLElement>(
+        'button, a[href], [tabindex]:not([tabindex="-1"])',
+      )
+      first?.focus()
+    }, 40)
+
+    return () => {
+      document.removeEventListener('keydown', onKeyDown)
+      window.clearTimeout(t)
+      document.body.classList.remove('modal-open')
+      previouslyFocused.current?.focus?.()
+    }
+  }, [open, onClose])
+
+  if (typeof document === 'undefined') return null
+
+  const images = project.images ?? []
   const hasImages = images.length > 0
-  const hasMultipleImages = images.length > 1
-
-  const goToPrevious = () => {
-    setCurrentImageIndex((i) => (i - 1 + images.length) % images.length)
-  }
-
-  const goToNext = () => {
-    setCurrentImageIndex((i) => (i + 1) % images.length)
-  }
-
+  const hasMultiple = images.length > 1
   const description = project.extendedDescription || project.description
 
-  const ModalContentStyled = ModalContent as any
-
-  const linkButtonProps = {
-    display: 'inline-flex' as const,
-    alignItems: 'center' as const,
-    gap: 2,
-    px: 4,
-    py: 2,
-    borderRadius: 'md',
-    fontFamily: 'var(--font-heading)',
-    fontSize: '1rem',
-    fontWeight: 600,
-    target: '_blank' as const,
-    rel: 'noopener noreferrer',
-    _hover: { textDecoration: 'none' as const },
-  }
-
-  return (
-    <Modal isOpen={isOpen} onClose={onClose} isCentered>
-      <ModalOverlay bg="blackAlpha.600" />
-      <ModalContentStyled
-        bg={modalBg}
-        border="3px solid"
-        borderColor={cardBorder}
-        borderRadius="8px"
-        className="heart-card"
-        maxW={{ base: '92vw', md: 'min(1100px, 92vw)' }}
-        maxH="90vh"
-        display="flex"
-        flexDirection="column"
-      >
-        <Box
-          as="header"
-          px={6}
-          pt={6}
-          pb={2}
-          display="flex"
-          justifyContent="space-between"
-          alignItems="center"
-          flexShrink={0}
+  const content = (
+    <AnimatePresence>
+      {open ? (
+        <m.div
+          key="backdrop"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 sm:p-6"
+          style={{
+            background: 'rgb(0 0 0 / 0.82)',
+            WebkitBackdropFilter: 'blur(8px)',
+            backdropFilter: 'blur(8px)',
+          }}
+          onClick={onClose}
         >
-          <Box
-            as="h2"
-            fontFamily="var(--font-heading)"
-            fontSize="1.75rem"
-            fontWeight="600"
-            color={headingColor}
+          <m.div
+            key="panel"
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="work-modal-title"
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.98 }}
+            transition={{ duration: 0.22, ease: 'easeOut' }}
+            onClick={(e) => e.stopPropagation()}
+            className="cyber-panel cyber-panel-stripe modal-panel flex max-h-[90vh] w-full max-w-[1100px] flex-col overflow-hidden rounded-sm"
           >
-            {project.name}
-          </Box>
-          <Box
-            as="button"
-            onClick={onClose}
-            aria-label="Close modal"
-            p={2}
-            borderRadius="md"
-            _hover={{ bg: useColorModeValue('heart.pinkLight', 'heart.darkPanel') }}
-            cursor="pointer"
-          >
-            <CloseIcon />
-          </Box>
-        </Box>
-
-        <Box
-          display="flex"
-          flexDirection={{ base: 'column', md: 'row' }}
-          flex={1}
-          minH={0}
-          overflow="hidden"
-        >
-          {/* Left column: content */}
-          <Box
-            flex={1}
-            minW={0}
-            overflowY="auto"
-            px={6}
-            pb={6}
-            order={{ base: 0, md: 1 }}
-          >
-            {(project.role || project.timeframe) && (
-              <Box mb={4}>
-                <Box
-                  as="p"
-                  fontFamily="var(--font-body)"
-                  fontSize="1.1rem"
-                  color={subtextColor}
-                >
-                  {project.role}
-                  {project.role && project.timeframe && ' • '}
-                  {project.timeframe}
-                </Box>
-              </Box>
-            )}
-
-            <Box
-              as="p"
-              fontFamily="var(--font-body)"
-              fontSize="1.1rem"
-              color={subtextColor}
-              mb={4}
-              lineHeight="1.6"
+            <header
+              className="flex flex-shrink-0 items-center justify-between gap-4 px-6 pt-6 pb-3"
             >
-              {description}
-            </Box>
-
-            {project.tech && project.tech.length > 0 && (
-              <Box mb={4} display="flex" flexWrap="wrap" gap={2} rowGap={2}>
-                {project.tech.map((tech) => (
-                  <Box
-                    key={tech}
-                    as="span"
-                    px={2}
-                    py={0.5}
-                    borderRadius="full"
-                    bg={techBg}
-                    color={techColor}
-                    fontFamily="var(--font-body)"
-                    fontSize="0.85rem"
-                  >
-                    {tech}
-                  </Box>
-                ))}
-              </Box>
-            )}
-
-            {(project.liveUrl || project.repoUrl) && (
-              <Box display="flex" gap={4} mt={6} flexWrap="wrap">
-                {project.liveUrl && (
-                  <Box
-                    as="a"
-                    href={project.liveUrl}
-                    {...linkButtonProps}
-                    bg="heart.magenta"
-                    color="white"
-                    _hover={{ bg: 'heart.magentaDark' }}
-                  >
-                    <Image
-                      src="/icons/link.svg"
-                      alt=""
-                      width={18}
-                      height={18}
-                      style={{ objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
-                    />
-                    Open site
-                  </Box>
-                )}
-                {project.repoUrl && (
-                  <Box
-                    as="a"
-                    href={project.repoUrl}
-                    {...linkButtonProps}
-                    bg="heart.magenta"
-                    color="white"
-                    _hover={{ bg: 'heart.magentaDark' }}
-                  >
-                    <Box
-                      as="svg"
-                      width="18"
-                      height="18"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden
-                    >
-                      <polyline points="16 18 22 12 16 6" />
-                      <polyline points="8 6 2 12 8 18" />
-                    </Box>
-                    View code
-                  </Box>
-                )}
-              </Box>
-            )}
-          </Box>
-
-          {/* Right column: carousel (only when has images) */}
-          {hasImages && (
-            <Box
-              width={{ base: '100%', md: '40%' }}
-              minW={{ md: '320px' }}
-              minH={{ base: '280px', md: '320px' }}
-              flex={{ base: '0 0 auto', md: '0 0 40%' }}
-              display="flex"
-              flexDirection="column"
-              px={6}
-              pb={6}
-              order={{ base: 1, md: 2 }}
-            >
-              <Box
-                position="relative"
-                borderRadius="md"
-                overflow="hidden"
-                flex={1}
-                minH="280px"
-                bg={techBg}
-                display="flex"
-                flexDirection="column"
+              <h2
+                id="work-modal-title"
+                className="font-display text-2xl font-bold md:text-3xl heading-glow"
+                style={{ color: 'rgb(var(--text))' }}
               >
-                <Box position="relative" flex={1} minH="200px" width="100%">
-                  <Image
-                    src={images[currentImageIndex]}
-                    alt={`${project.name} - Image ${currentImageIndex + 1}`}
-                    width={800}
-                    height={600}
+                {project.name}
+              </h2>
+              <button
+                type="button"
+                aria-label="Close"
+                onClick={onClose}
+                className="modal-icon-btn inline-flex h-11 w-11 items-center justify-center rounded-sm"
+              >
+                <CloseIcon />
+              </button>
+            </header>
+
+            <div className="flex flex-1 flex-col overflow-hidden md:flex-row">
+              {/* Content column */}
+              <div className="order-2 min-h-0 flex-1 overflow-y-auto px-6 pb-6 md:order-1">
+                {(project.role || project.timeframe) && (
+                  <p
+                    className="mb-4 font-tech text-xs uppercase tracking-[0.22em]"
+                    style={{ color: 'rgb(var(--accent))' }}
+                  >
+                    {project.role}
+                    {project.role && project.timeframe ? ' · ' : ''}
+                    {project.timeframe}
+                  </p>
+                )}
+
+                <p className="mb-5 text-base leading-relaxed text-muted">{description}</p>
+
+                {project.tech && project.tech.length > 0 ? (
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {project.tech.map((tech) => (
+                      <span key={tech} className="tech-chip">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                ) : null}
+
+                {(project.liveUrl || project.repoUrl) && (
+                  <div className="flex flex-wrap gap-3">
+                    {project.liveUrl ? (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-accent"
+                      >
+                        <LinkIcon />
+                        Open site
+                      </a>
+                    ) : null}
+                    {project.repoUrl ? (
+                      <a
+                        href={project.repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-accent"
+                        style={{ background: 'transparent' }}
+                      >
+                        <CodeIcon />
+                        View code
+                      </a>
+                    ) : null}
+                  </div>
+                )}
+              </div>
+
+              {/* Carousel column */}
+              {hasImages ? (
+                <div className="order-1 flex-shrink-0 px-6 pb-6 md:order-2 md:w-[42%] md:min-w-[320px]">
+                  <div
+                    className="relative flex min-h-[240px] flex-1 flex-col overflow-hidden rounded-sm"
                     style={{
-                      width: '100%',
-                      height: '100%',
-                      minHeight: '280px',
-                      objectFit: 'contain',
+                      background: 'rgb(var(--bg-panel) / 0.35)',
+                      border: '1px solid rgb(var(--border-muted) / var(--border-muted-alpha))',
                     }}
-                  />
-                </Box>
+                  >
+                    <div className="relative h-full min-h-[240px] w-full">
+                      <Image
+                        src={images[currentImage]}
+                        alt={`${project.name} — image ${currentImage + 1}`}
+                        width={800}
+                        height={600}
+                        style={{ width: '100%', height: '100%', minHeight: '240px', objectFit: 'contain' }}
+                      />
+                    </div>
 
-                {hasMultipleImages && (
-                  <>
-                    <Box
-                      as="button"
-                      aria-label="Previous image"
-                      position="absolute"
-                      left={2}
-                      top="50%"
-                      transform="translateY(-50%)"
-                      bg={cardBg}
-                      border="2px solid"
-                      borderColor={cardBorder}
-                      borderRadius="md"
-                      p={2}
-                      onClick={goToPrevious}
-                      _hover={{ bg: 'heart.magenta', color: 'white' }}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <ChevronLeftIcon />
-                    </Box>
-                    <Box
-                      as="button"
-                      aria-label="Next image"
-                      position="absolute"
-                      right={2}
-                      top="50%"
-                      transform="translateY(-50%)"
-                      bg={cardBg}
-                      border="2px solid"
-                      borderColor={cardBorder}
-                      borderRadius="md"
-                      p={2}
-                      onClick={goToNext}
-                      _hover={{ bg: 'heart.magenta', color: 'white' }}
-                      cursor="pointer"
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                    >
-                      <ChevronRightIcon />
-                    </Box>
-
-                    <Box
-                      display="flex"
-                      gap={2}
-                      justifyContent="center"
-                      mt={3}
-                      position="relative"
-                      zIndex={1}
-                    >
-                      {images.map((_, index) => (
-                        <Box
-                          key={index}
-                          w={2}
-                          h={2}
-                          borderRadius="full"
-                          bg={index === currentImageIndex ? 'heart.magenta' : dotInactiveColor}
-                          cursor="pointer"
-                          onClick={() => setCurrentImageIndex(index)}
-                          transition="all 0.2s"
-                          _hover={{ transform: 'scale(1.2)' }}
+                    {hasMultiple ? (
+                      <>
+                        <button
+                          type="button"
+                          aria-label="Previous image"
+                          onClick={() =>
+                            setCurrentImage((i) => (i - 1 + images.length) % images.length)
+                          }
+                          className="modal-chevron-btn absolute left-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm"
+                        >
+                          <ChevronLeft />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label="Next image"
+                          onClick={() => setCurrentImage((i) => (i + 1) % images.length)}
+                          className="modal-chevron-btn absolute right-2 top-1/2 inline-flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-sm"
+                        >
+                          <ChevronRight />
+                        </button>
+                      </>
+                    ) : null}
+                  </div>
+                  {hasMultiple ? (
+                    <div className="mt-3 flex justify-center gap-2">
+                      {images.map((_, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          aria-label={`Go to image ${i + 1}`}
+                          onClick={() => setCurrentImage(i)}
+                          className="h-2 w-2 rounded-full transition-transform"
+                          style={{
+                            background:
+                              i === currentImage
+                                ? 'rgb(var(--accent-bright))'
+                                : 'rgb(var(--text) / 0.35)',
+                            transform: i === currentImage ? 'scale(1.15)' : undefined,
+                          }}
                         />
                       ))}
-                    </Box>
-                  </>
-                )}
-              </Box>
-            </Box>
-          )}
-        </Box>
-      </ModalContentStyled>
-    </Modal>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </m.div>
+        </m.div>
+      ) : null}
+    </AnimatePresence>
+  )
+
+  return createPortal(content, document.body)
+}
+
+function CloseIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  )
+}
+
+function ChevronLeft() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <polyline points="15 18 9 12 15 6" />
+    </svg>
+  )
+}
+
+function ChevronRight() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <polyline points="9 18 15 12 9 6" />
+    </svg>
+  )
+}
+
+function LinkIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" />
+      <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" />
+    </svg>
+  )
+}
+
+function CodeIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <polyline points="16 18 22 12 16 6" />
+      <polyline points="8 6 2 12 8 18" />
+    </svg>
   )
 }

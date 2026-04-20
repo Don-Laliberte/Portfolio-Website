@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="972.33801mm"
+   height="401.67401mm"
+   viewBox="0 0 972.33802 401.67401"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.3 (0d15f75, 2025-12-25)"
+   sodipodi:docname="ch2026widelogo.svg"
+   inkscape:export-filename="ch2026widelogo-dark.png"
+   inkscape:export-xdpi="12.7"
+   inkscape:export-ydpi="12.7"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#000000"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="0.18655053"
+     inkscape:cx="1219.5087"
+     inkscape:cy="737.06571"
+     inkscape:window-width="1512"
+     inkscape:window-height="864"
+     inkscape:window-x="0"
+     inkscape:window-y="38"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g3"
+     showguides="true"
+     showgrid="false"
+     inkscape:export-bgcolor="#ffffff00">
+    <inkscape:page
+       x="0"
+       y="0"
+       width="972.33801"
+       height="401.67401"
+       id="page2"
+       margin="0"
+       bleed="0" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <linearGradient
+       id="swatch1"
+       inkscape:swatch="solid"
+       inkscape:label="Text Color">
+      <stop
+         style="stop-color:#ffffff;stop-opacity:1;"
+         offset="0"
+         id="stop1" />
+    </linearGradient>
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch1"
+       id="linearGradient2"
+       x1="-66.844551"
+       y1="34.340115"
+       x2="369.16821"
+       y2="34.340115"
+       gradientUnits="userSpaceOnUse" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch1"
+       id="linearGradient4"
+       gradientUnits="userSpaceOnUse"
+       x1="-66.844551"
+       y1="34.340115"
+       x2="369.16821"
+       y2="34.340115"
+       gradientTransform="translate(-6.5211292,0.52916667)" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch1"
+       id="linearGradient10"
+       gradientUnits="userSpaceOnUse"
+       x1="-66.844551"
+       y1="34.340115"
+       x2="369.16821"
+       y2="34.340115" />
+    <linearGradient
+       inkscape:collect="always"
+       xlink:href="#swatch1"
+       id="linearGradient11"
+       gradientUnits="userSpaceOnUse"
+       x1="756.05981"
+       y1="320.41537"
+       x2="889.10498"
+       y2="320.41537" />
+  </defs>
+  <g
+     id="g1"
+     inkscape:label="Full Logo"
+     transform="translate(4.0225109,12.401268)">
+    <g
+       id="g7"
+       style="display:inline"
+       inkscape:label="Hacks-original"
+       transform="translate(414.97152,-101.98991)">
+      <path
+         id="rect1"
+         style="display:inline;fill:#ff0000;stroke-width:2.11667;stroke-linecap:square;paint-order:stroke fill markers"
+         d="M 85.064476,276.12338 H 507.52322 l -33.3375,109.5405 H 85.064476 Z"
+         sodipodi:nodetypes="ccccc"
+         inkscape:label="Background" />
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-size:105.47px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Italic';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;display:inline;fill:#ffffff;fill-opacity:1;stroke-width:2.11666;stroke-linecap:square;paint-order:stroke fill markers"
+         x="451.47766"
+         y="370.83734"
+         id="text2-0"
+         inkscape:label="Hacks"><tspan
+           sodipodi:role="line"
+           id="tspan2-6"
+           style="font-style:normal;font-variant:normal;font-weight:900;font-stretch:normal;font-size:105.47px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Heavy';fill:#ffffff;fill-opacity:1;stroke-width:2.11666"
+           x="451.47766"
+           y="370.83734">Hacks</tspan></text>
+    </g>
+    <g
+       id="g3"
+       transform="translate(117.0008,130.24015)"
+       inkscape:label="Calgary Text"
+       style="fill:url(#linearGradient2)">
+      <path
+         id="path1-6"
+         style="display:inline;fill:url(#linearGradient4);fill-opacity:1;stroke-width:2.11667;stroke-linecap:square;paint-order:stroke fill markers"
+         d="m 84.290757,-92.376887 c 0,0 0.66914,36.107861 0.7443,38.277463 1.23822,0 3.48085,0.360181 3.48085,1.799465 0,1.439291 -3.75376,1.539824 -3.75376,1.539824 l 0.42514,7.675887 h 11.086074 v 3.044084 h -3.338344 v 3.707053 c 14.802143,0 19.174533,9.574469 19.174533,9.574469 h 7.09942 v 3.484744 h -7.83185 c 0,0 -2.072,16.9359016 -3.15144,24.9000174 C 98.652311,2.0892114 97.461211,12.150155 97.461211,12.150155 H 93.257167 L 96.624901,140.34788 H 71.956606 L 75.324347,12.150155 h -4.20404 c 0,0 -1.1911,-10.0609436 -10.764467,-10.5240356 -1.079432,-7.9641158 -3.151444,-24.9000174 -3.151444,-24.9000174 h -7.831901 v -3.484744 h 7.099462 c 0,0 4.372403,-9.574469 19.17454,-9.574469 v -3.707053 h -3.33834 v -3.044084 h 11.08606 l 0.42515,-7.675887 c 0,0 -3.75376,-0.100533 -3.75376,-1.539824 0,-1.439284 2.24263,-1.799465 3.48085,-1.799465"
+         sodipodi:nodetypes="ccsccccccccccccccccccccccccccccsc"
+         inkscape:label="Calgary Tower" />
+      <text
+         xml:space="preserve"
+         style="font-style:italic;font-size:105.47px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Italic';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;display:inline;fill:url(#linearGradient10);fill-opacity:1;stroke-width:2.11666;stroke-linecap:square;paint-order:stroke fill markers"
+         x="367.58606"
+         y="140.0704"
+         id="text2"
+         inkscape:label="Calgary"><tspan
+           sodipodi:role="line"
+           id="tspan2"
+           style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:105.47px;font-family:Verdana;-inkscape-font-specification:'Verdana, Bold';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:url(#linearGradient10);fill-opacity:1;stroke-width:2.11666"
+           x="367.58606"
+           y="140.0704">Calgary</tspan></text>
+    </g>
+    <text
+       xml:space="preserve"
+       style="font-weight:900;font-size:50.8px;font-family:Montserrat;-inkscape-font-specification:'Montserrat Heavy';text-align:end;letter-spacing:0px;word-spacing:0px;text-anchor:end;fill:url(#linearGradient11);stroke-width:3.175;stroke-linecap:square;paint-order:stroke fill markers"
+       x="889.30817"
+       y="338.19537"
+       id="text1"
+       inkscape:label="Year"><tspan
+         sodipodi:role="line"
+         id="tspan1"
+         style="fill:url(#linearGradient11);stroke-width:3.175"
+         x="889.30817"
+         y="338.19537">2026</tspan></text>
+  </g>
+</svg>
