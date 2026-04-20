@@ -41,15 +41,9 @@ export function SectionHeading({
       viewport={{ once: true, amount: 0.3 }}
       className={`flex flex-col ${alignment} ${className}`}
     >
-      {eyebrow ? (
-        <m.span variants={fadeUp} custom={0.05} className="eyebrow mb-3">
-          {eyebrow}
-        </m.span>
-      ) : null}
-
       <m.h2
         variants={fadeUp}
-        custom={0.12}
+        custom={0.05}
         className="font-display text-4xl font-bold leading-tight md:text-5xl heading-glow"
         style={{ color: 'rgb(var(--text))' }}
       >
@@ -64,16 +58,22 @@ export function SectionHeading({
       </m.h2>
 
       <Divider
-        delay={0.25}
+        delay={0.18}
         flip
         className={`${align === 'center' ? 'my-6 w-40' : 'my-5 w-full max-w-sm'}`}
       />
 
+      {eyebrow ? (
+        <m.span variants={fadeUp} custom={0.28} className="eyebrow">
+          {eyebrow}
+        </m.span>
+      ) : null}
+
       {subtitle ? (
         <m.p
           variants={fadeUp}
-          custom={0.3}
-          className="max-w-xl text-base leading-relaxed text-muted"
+          custom={0.38}
+          className="mt-3 max-w-xl text-base leading-relaxed text-muted"
         >
           {subtitle}
         </m.p>
