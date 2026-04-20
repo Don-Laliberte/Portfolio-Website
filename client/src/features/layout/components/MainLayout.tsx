@@ -1,8 +1,9 @@
 'use client'
 
 import { useEffect } from 'react'
-import { Box } from '@chakra-ui/react'
 import { Navbar } from './Navbar'
+import { CornerBrackets } from '@/components/decor/CornerBrackets'
+import { ScanLine } from '@/components/decor/ScanLine'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -15,26 +16,27 @@ export function MainLayout({ children }: MainLayoutProps) {
   }, [])
 
   useEffect(() => {
-    const hash = typeof window !== 'undefined' ? window.location.hash : ''
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash
     if (!hash) return
     const id = hash.slice(1)
     const scrollToSection = () => {
       document.getElementById(id)?.scrollIntoView({ behavior: 'auto', block: 'start' })
     }
-    const t = requestAnimationFrame(() => requestAnimationFrame(scrollToSection))
-    return () => cancelAnimationFrame(t)
+    const raf = requestAnimationFrame(() => requestAnimationFrame(scrollToSection))
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   return (
-    <Box as="main">
-      <Navbar />
-      <Box
-        as="div"
-        className="scroll-container"
-        pt={14}
-      >
-        {children}
-      </Box>
-    </Box>
+    <>
+      <CornerBrackets />
+      <ScanLine />
+      <main className="relative">
+        <div className="scroll-container">
+          <Navbar />
+          {children}
+        </div>
+      </main>
+    </>
   )
 }
