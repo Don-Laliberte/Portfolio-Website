@@ -1,26 +1,38 @@
 'use client'
 
-import { Box, useColorModeValue } from '@chakra-ui/react'
+import { m } from 'framer-motion'
 
 export function PostsSection() {
-  const headingColor = useColorModeValue('heart.charcoal', 'heart.darkText')
-  const subtextColor = useColorModeValue('heart.gray', 'heart.darkTextMuted')
-
   return (
-    <Box textAlign="center" py={8}>
-      <Box
-        as="h2"
-        fontFamily="var(--font-heading)"
-        fontSize={{ base: '1.75rem', md: '2.25rem' }}
-        fontWeight="600"
-        color={headingColor}
-        mb={2}
+    <m.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+      className="flex flex-col items-center text-center"
+    >
+      <h2
+        className="font-display text-4xl font-bold leading-tight md:text-6xl heading-glow"
+        style={{ color: 'rgb(var(--text))' }}
       >
-        Posts
-      </Box>
-      <Box as="p" color={subtextColor} fontSize="1.25rem" fontFamily="var(--font-body)">
-        Coming soon.
-      </Box>
-    </Box>
+        Posts{' '}
+        <span style={{ color: 'rgb(var(--accent-bright))' }}>Incoming</span>
+      </h2>
+
+      <p className="mt-6 max-w-md font-body text-xl leading-relaxed text-muted md:text-2xl">
+        <span>Writing up dev notes, build logs, and occasional rants.</span>
+      </p>
+
+      <p
+        className="mt-8 flex items-center gap-1 font-tech text-sm uppercase tracking-[0.3em]"
+        style={{ color: 'rgb(var(--accent))' }}
+        aria-label="Coming soon"
+      >
+        <span>Stay tuned</span>
+        <span className="animate-blink inline-block" aria-hidden>
+          _
+        </span>
+      </p>
+    </m.div>
   )
 }
