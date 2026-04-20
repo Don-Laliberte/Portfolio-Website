@@ -1,0 +1,56 @@
+import type { Metadata, Viewport } from 'next'
+import { Pixelify_Sans, VT323 } from 'next/font/google'
+import { MainLayout } from '@/features/layout'
+import { ThemeProvider, themeInitScript } from '@/lib/theme-provider'
+import { MotionProvider } from '@/lib/motion-provider'
+import './globals.css'
+
+const pixelify = Pixelify_Sans({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-display-loaded',
+  display: 'swap',
+})
+
+const vt323 = VT323({
+  subsets: ['latin'],
+  weight: '400',
+  variable: '--font-body-loaded',
+  display: 'swap',
+})
+
+export const metadata: Metadata = {
+  title: 'Don Laliberte',
+  description: "Don Laliberte's portfolio — Software Developer",
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f5efe6' },
+    { media: '(prefers-color-scheme: dark)', color: '#1a0a1a' },
+  ],
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${pixelify.variable} ${vt323.variable}`}
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
+      <body suppressHydrationWarning>
+        <ThemeProvider>
+          <MotionProvider>
+            <MainLayout>{children}</MainLayout>
+          </MotionProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  )
+}
