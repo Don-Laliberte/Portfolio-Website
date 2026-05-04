@@ -68,6 +68,7 @@ export function WorkModal({ open, onClose, project }: WorkModalProps) {
   const hasImages = images.length > 0
   const hasMultiple = images.length > 1
   const description = project.extendedDescription || project.description
+  const modalTech = project.modalTech ?? project.tech
 
   const content = (
     <AnimatePresence>
@@ -135,9 +136,9 @@ export function WorkModal({ open, onClose, project }: WorkModalProps) {
 
                 <p className="mb-5 text-base leading-relaxed text-muted">{description}</p>
 
-                {project.tech && project.tech.length > 0 ? (
+                {modalTech && modalTech.length > 0 ? (
                   <div className="mb-6 flex flex-wrap gap-2">
-                    {project.tech.map((tech) => (
+                    {modalTech.map((tech) => (
                       <span key={tech} className="tech-chip">
                         {tech}
                       </span>
