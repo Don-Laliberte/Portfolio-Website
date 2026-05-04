@@ -531,6 +531,27 @@ body.modal-open .scroll-container {
   height: 100%;
 }
 
+/*
+ * Stable compositing layer for work-card logos.
+ *
+ * Safari re-rasterises <img>-embedded SVGs whenever their ancestor enters or
+ * leaves a GPU-composited layer — which our .cyber-panel-hover lift does on
+ * every hover. In that re-rasterisation pass Safari re-runs font matching,
+ * and any SVG <text> with a font the OS doesn't have (e.g. Montserrat in the
+ * CalgaryHacks logo) can flip to a completely different fallback mid-hover.
+ *
+ * Forcing the logo into its own permanent compositing layer (translateZ(0) +
+ * backface-visibility) keeps rasterisation stable through the hover cycle.
+ * This is a band-aid; the real fix for any SVG using <text> is to convert
+ * the text to paths in Inkscape (Path → Object to Path) before exporting.
+ */
+.work-logo {
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
 /* Safe-area padding helpers for fixed elements on iOS notch / Dynamic Island. */
 .safe-inset-top { padding-top: env(safe-area-inset-top); }
 .safe-inset-right { padding-right: env(safe-area-inset-right); }

@@ -52,7 +52,7 @@ export function WorkCard({ project }: WorkCardProps) {
         onMouseLeave={handleMouseLeave}
       >
         {resolvedLogoSrc ? (
-          <div className="mb-4 flex justify-center">
+          <div className="work-logo mb-4 flex justify-center">
             {isAnimatedLogo ? (
               <object
                 key={`${resolvedLogoSrc}-${animationKey}`}

@@ -36,14 +36,25 @@ export function HeroSection() {
       // desktops. The section is align="start" (see page.tsx) so this padding
       // actually shifts content instead of being absorbed by flex centering.
       //
-      // Mobile: portrait stacked above the heading (flex-col-reverse keeps
-      // the text as the first child in source order for a11y / DOM order,
-      // but renders the portrait first visually). md+: two columns with the
-      // portrait floated right and vertically centered against the text
-      // block — md:flex-row wins over flex-col-reverse at the breakpoint.
-      className="flex flex-col-reverse gap-8 pt-[8vh] md:flex-row md:items-center md:gap-14 md:pt-[14vh]"
+      // Mobile / small-desktop: portrait stacked above the heading
+      // (flex-col-reverse keeps the text as the first child in source order
+      // for a11y / DOM order, but renders the portrait first visually).
+      //
+      // We hold the stacked layout all the way up to xl (≥1280px) because
+      // the eyebrow ("…CSUS PRESIDENT 2027") at VT323 + 0.28em tracking is
+      // ~680px wide. Combined with the portrait + gap, the two-column
+      // layout needs ~960px of content area, which only fits comfortably
+      // once FullPageSection's lg:px-16 padding is offset by the wider
+      // xl viewport.
+      //
+      // `my-auto` centres the stacked layout vertically inside the
+      // FullPageSection's min-h-100vh track (parent uses justify-start, so
+      // auto margins absorb the free space equally top + bottom). On xl
+      // we reset it and restore the original pt-[14vh] top offset so the
+      // two-column layout still sits cleanly below the sticky navbar.
+      className="my-auto flex flex-col-reverse gap-8 xl:my-0 xl:flex-row xl:items-center xl:gap-10 xl:pt-[14vh]"
     >
-      <div className="flex max-w-[560px] flex-col">
+      <div className="flex min-w-0 flex-col">
         <m.h1
           variants={fadeUp}
           custom={0.1}
@@ -56,7 +67,11 @@ export function HeroSection() {
 
         <Divider delay={0.25} className="my-6 max-w-sm" flip />
 
-        <m.span variants={fadeUp} custom={0.4} className="eyebrow">
+        <m.span
+          variants={fadeUp}
+          custom={0.4}
+          className="eyebrow whitespace-nowrap"
+        >
           Software Developer · UCalgary Student · CSUS President 2027
         </m.span>
 
@@ -103,7 +118,7 @@ function HeroPortrait() {
   return (
     <m.div
       variants={portraitIn}
-      className="relative mx-auto aspect-square w-40 shrink-0 md:mx-0 md:w-[280px]"
+      className="relative mx-auto aspect-square w-48 shrink-0 sm:w-56 md:w-64 xl:mx-0 xl:w-[240px]"
     >
       {/* Outer accent ring + glow. Absolutely positioned so it sits on top of
        * the image without clipping, and pointer-events-none so the image
@@ -132,7 +147,7 @@ function HeroPortrait() {
         src="/images/don-headshot.jpg"
         alt="Don Laliberte"
         fill
-        sizes="(min-width: 768px) 280px, 160px"
+        sizes="(min-width: 1280px) 240px, (min-width: 768px) 256px, (min-width: 640px) 224px, 192px"
         priority
         className="rounded-full object-cover"
         style={{ objectPosition: '50% 30%' }}

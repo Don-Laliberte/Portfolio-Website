@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Pixelify_Sans, VT323 } from 'next/font/google'
+import Script from 'next/script'
 import { MainLayout } from '@/features/layout'
 import { ThemeProvider, themeInitScript } from '@/lib/theme-provider'
 import { MotionProvider } from '@/lib/motion-provider'
@@ -41,10 +42,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
       className={`${pixelify.variable} ${vt323.variable}`}
     >
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-      </head>
+      <head />
       <body suppressHydrationWarning>
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeInitScript }}
+        />
         <ThemeProvider>
           <MotionProvider>
             <MainLayout>{children}</MainLayout>

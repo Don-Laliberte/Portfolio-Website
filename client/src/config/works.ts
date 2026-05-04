@@ -28,18 +28,19 @@ export type WorkProject = {
 export const WORK_PROJECTS: WorkProject[] = [
   {
     id: 'calgaryhacks',
-    name: 'CalgaryHacks',
+    name: 'CalgaryHacks 2026',
     role: 'Full Stack Developer',
     timeframe: '2025-2026',
     description:
       'Hackathon website for CalgaryHacks 2026 with registration, schedule, and sponsor information in a playful pixel UI.',
     tech: ['Next.js', 'React', 'TypeScript', 'Cloudflare'],
-    liveUrl: 'https://calgaryhacks.ca',
+    liveUrl: 'https://calgaryhacks.ca/2026',
     logoSrc: '/images/works/calgaryhacks-logo.svg',
     logoSrcDark: '/images/works/calgaryhacks-logo-dark.svg',
     logoAlt: 'CalgaryHacks logo',
     logoWidth: 160,
     logoHeight: 48,
+    images: ['/images/works/CalgaryHacks2026 Image.png'],
   },
   {
     id: 'csus-club',
@@ -55,5 +56,6 @@ export const WORK_PROJECTS: WorkProject[] = [
     logoAlt: 'CSUS Club logo',
     logoWidth: 140,
     logoHeight: 36,
+    images: ['/images/works/CSUS Website Image.png'],
   },
 ]
