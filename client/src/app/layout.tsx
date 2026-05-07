@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next'
-import { Pixelify_Sans, VT323 } from 'next/font/google'
+import { Jersey_25, Pixelify_Sans } from 'next/font/google'
 import Script from 'next/script'
 import { MainLayout } from '@/features/layout'
 import { ThemeProvider, themeInitScript } from '@/lib/theme-provider'
@@ -13,10 +13,10 @@ const pixelify = Pixelify_Sans({
   display: 'swap',
 })
 
-const vt323 = VT323({
+const jersey25 = Jersey_25({
   subsets: ['latin'],
   weight: '400',
-  variable: '--font-body-loaded',
+  variable: '--font-jersey-loaded',
   display: 'swap',
 })
 
@@ -40,7 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${pixelify.variable} ${vt323.variable}`}
+      className={`${pixelify.variable} ${jersey25.variable}`}
     >
       <head />
       <body suppressHydrationWarning>

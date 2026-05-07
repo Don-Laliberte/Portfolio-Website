@@ -27,7 +27,7 @@ const socials: Array<{
     href: 'https://www.instagram.com/don.withyou/',
     iconSrc: '/icons/instagram.svg',
     iconSize: 28,
-    description: 'Photos & personal updates',
+    description: 'Photos & personal life',
     cta: 'Open on Instagram',
     brand: '217 26 122',
   },
@@ -85,7 +85,7 @@ export function SocialsSection() {
         eyebrow="Socials"
         title="Find me"
         accent="Online"
-        subtitle="Best places to reach me. Each link opens in a new tab."
+        subtitle="Here are some of the best places to reach me. Feel free to connect or chat."
       />
 
       <m.div

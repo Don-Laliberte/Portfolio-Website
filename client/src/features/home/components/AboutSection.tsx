@@ -17,17 +17,17 @@ const blocks: Array<{ title: string; body: string }> = [
   {
     title: 'The short version',
     body:
-      'Full-stack developer, designer-by-necessity, perpetual tinkerer. I build things I want to exist and occasionally ship them.',
+      'Full-stack developer, designer-by-necessity, perpetual tinkerer. I build things I want to exist because I believe in their value. I do it out of love for creating.',
   },
   {
     title: 'What I care about',
     body:
-      'Tools that respect their users, interfaces that feel alive, and code you can actually read a year later. I prefer doing the hard thing twice over the wrong thing once.',
+      'I like self-improvement and pushing the quality bar in this industry. I build tools with users in mind, while still keeping my whimsy. Takeaway, I\'m a "measure twice, cut once" kind of person.',
   },
   {
-    title: 'Outside the editor',
+    title: 'Outside the grind',
     body:
-      'Music, esports, club organizing, and pretending my dark-mode habit is a lifestyle. I help run the CS community at the University of Calgary.',
+      'Music, esports, organizing communities, and building in my own style. I bring a distinct mix of creativity, leadership, and technical depth to the CS community at UCalgary.',
   },
 ]
 
@@ -38,7 +38,7 @@ export function AboutSection() {
         eyebrow="Who am I?"
         title="Don"
         accent="Laliberte"
-        subtitle="Computer Science student at the University of Calgary. I work across the stack and ship software that people actually use."
+        subtitle="Computer Science student at the University of Calgary. I'm passionate about our growing community and creating the impact I want to see with my work."
       />
 
       <m.div

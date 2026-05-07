@@ -8,11 +8,10 @@
 
 /* ── Design tokens (Tailwind v4 @theme block exposes them as utilities) ── */
 @theme {
+  /* Display headings use Pixelify Sans. Body + UI/tech accents use Jersey 25. */
   --font-display: var(--font-display-loaded, 'Pixelify Sans'), ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-body-loaded, 'VT323'), ui-monospace, 'Courier New', monospace;
-  /* Unified UI font: VT323 everywhere (buttons, nav, chips, eyebrows) — keeps
-   * the pixel-terminal aesthetic consistent with headings + body. */
-  --font-tech: var(--font-body-loaded, 'VT323'), ui-monospace, 'Courier New', monospace;
+  --font-body: var(--font-jersey-loaded, 'Jersey 25'), ui-sans-serif, system-ui, sans-serif;
+  --font-tech: var(--font-jersey-loaded, 'Jersey 25'), ui-sans-serif, system-ui, sans-serif;
 
   /* Palette — used by utility classes (bg-pink, text-accent, etc.) */
   --color-pink: #e05aaa;

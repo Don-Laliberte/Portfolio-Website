@@ -20,7 +20,7 @@ export function PostsSection() {
       </h2>
 
       <p className="mt-6 max-w-md font-body text-xl leading-relaxed text-muted md:text-2xl">
-        <span>Writing up dev notes, build logs, and occasional rants.</span>
+        <span>If you're interested in me yapping about my new programming hyperfixations</span>
       </p>
 
       <p

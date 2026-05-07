@@ -22,7 +22,7 @@ export function WorksSection() {
         eyebrow="Portfolio"
         title="Selected"
         accent="Works"
-        subtitle="A slice of what I've shipped — more in the vault. Open any card for a closer look."
+        subtitle="Take a look at some of my public work! Open any card for a more detailed look."
       />
 
       <m.div

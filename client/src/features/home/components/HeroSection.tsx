@@ -41,7 +41,7 @@ export function HeroSection() {
       // for a11y / DOM order, but renders the portrait first visually).
       //
       // We hold the stacked layout all the way up to xl (≥1280px) because
-      // the eyebrow ("…CSUS PRESIDENT 2027") at VT323 + 0.28em tracking is
+      // the eyebrow ("…CSUS PRESIDENT 2027") at Jersey 25 + 0.28em tracking is
       // ~680px wide. Combined with the portrait + gap, the two-column
       // layout needs ~960px of content area, which only fits comfortably
       // once FullPageSection's lg:px-16 padding is offset by the wider
@@ -82,7 +82,7 @@ export function HeroSection() {
           style={{ color: 'rgb(var(--text) / 0.75)' }}
         >
           A young aspiring developer building tools, community sites, and
-          occasionally pixel art. Currently shipping for UofC and learning loud.
+          occasionally pixel art. Currently leading CSUS and the UofC tech community.
         </m.p>
 
         <m.div

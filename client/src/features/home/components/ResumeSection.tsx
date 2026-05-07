@@ -14,7 +14,7 @@ export function ResumeSection() {
         eyebrow="Documentation"
         title="The"
         accent="Resume"
-        subtitle="SWE one-pager is embedded below. Download the official PDF version anytime."
+        subtitle="A SWE one-pager is embedded below for your ease of viewing. Check it out, and if you'd like you can download my official resume as a PDF as well!"
       />
 
       <m.div

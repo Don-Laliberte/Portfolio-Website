@@ -42,6 +42,8 @@
   border-radius: 0.25rem;
   padding: 1.25rem;
   color: rgb(var(--text));
+  font-size: 1.05rem;
+  line-height: 1.5;
 }
 
 .embedded {
@@ -53,6 +55,13 @@
   margin: 0;
   font-size: 1.8rem;
   line-height: 1.2;
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.accentName {
+  color: rgb(var(--accent-bright));
 }
 
 .target {
@@ -71,6 +80,34 @@
   color: inherit;
 }
 
+.meta a {
+  color: rgb(0 119 183);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.resumeLink {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: opacity 160ms ease;
+}
+
+.resumeLink:hover {
+  opacity: 0.85;
+}
+
+.links a.linkPortfolio {
+  color: rgb(var(--accent-bright));
+}
+
+.links a.linkGithub {
+  color: rgb(180 140 255);
+}
+
+.links a.linkLinkedin {
+  color: rgb(0 119 183);
+}
+
 .section {
   margin-top: 1rem;
 }
@@ -80,6 +117,9 @@
   font-size: 0.9rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+  color: rgb(var(--accent-bright));
+  font-family: var(--font-display);
+  font-weight: 700;
 }
 
 .section p {
@@ -104,6 +144,11 @@
   color: rgb(var(--text) / 0.75);
   white-space: nowrap;
   font-size: 0.92rem;
+}
+
+.row strong {
+  font-weight: 400;
+  letter-spacing: 0.01em;
 }
 
 .muted {

@@ -33,21 +33,40 @@ export function ResumeOnePager({
 
       <article className={`${styles.sheet} ${embedded ? styles.embedded : ''}`}>
         <header className={styles.header}>
-          <h1>{resume.person.name}</h1>
+          <h1>
+            Don H. <span className={styles.accentName}>Laliberte</span>
+          </h1>
           <p className={styles.target}>{resume.targetRole}</p>
           <p className={styles.meta}>
             {resume.person.location} ·{' '}
             <a href={`mailto:${resume.person.email}`}>{resume.person.email}</a>
           </p>
           <p className={styles.links}>
-            {resume.person.links.map((link, i) => (
-              <span key={link.label}>
-                <a href={link.href} target="_blank" rel="noopener noreferrer">
-                  {link.label}
-                </a>
-                {i < resume.person.links.length - 1 ? ' · ' : ''}
-              </span>
-            ))}
+            {resume.person.links.map((link, i) => {
+              const linkKey = link.label.toLowerCase()
+              const toneClass =
+                linkKey === 'portfolio'
+                  ? styles.linkPortfolio
+                  : linkKey === 'github'
+                    ? styles.linkGithub
+                    : linkKey === 'linkedin'
+                      ? styles.linkLinkedin
+                      : ''
+
+              return (
+                <span key={link.label}>
+                  <a
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${styles.resumeLink} ${toneClass}`}
+                  >
+                    {link.label}
+                  </a>
+                  {i < resume.person.links.length - 1 ? ' · ' : ''}
+                </span>
+              )
+            })}
           </p>
         </header>
 

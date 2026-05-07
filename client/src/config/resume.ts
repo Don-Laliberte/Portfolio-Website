@@ -78,7 +78,11 @@ export const RESUME_ONE_PAGER: ResumeOnePager = {
   skills: [
     {
       label: 'Languages',
-      skills: ['TypeScript', 'JavaScript', 'SQL'],
+      skills: ['TypeScript', 'JavaScript', 'SQL', 'Python', 'Java'],
+    },
+    {
+      label: 'Familiar',
+      skills: ['C', 'C++', 'C#'],
     },
     {
       label: 'Frameworks',
@@ -86,7 +90,7 @@ export const RESUME_ONE_PAGER: ResumeOnePager = {
     },
     {
       label: 'Cloud & Data',
-      skills: ['Cloudflare Workers', 'R2', 'D1', 'Drizzle ORM'],
+      skills: ['Cloudflare Workers', 'R2', 'D1', 'Drizzle ORM', 'MongoDB', 'Convex'],
     },
     {
       label: 'Tooling',
