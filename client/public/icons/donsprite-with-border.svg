@@ -11,108 +11,16 @@
      d="M 3,-0.13671875 A 0.13605426,0.13605426 0 0 0 2.8632813,0 V 0.86328125 H 2 A 0.13605426,0.13605426 0 0 0 1.8632812,1 V 2 2.8632813 H 1 A 0.13605426,0.13605426 0 0 0 0.86328125,3 V 4 5 6 6.8632812 H 0 A 0.13605426,0.13605426 0 0 0 -0.13671875,7 V 8 A 0.13605426,0.13605426 0 0 0 0,8.1367188 H 0.86328125 V 8.8632813 H 0 A 0.13605426,0.13605426 0 0 0 -0.13671875,9 v 1 A 0.13605426,0.13605426 0 0 0 0,10.136719 H 0.86328125 V 11 A 0.13605426,0.13605426 0 0 0 1,11.136719 H 1.8632812 V 12 A 0.13605426,0.13605426 0 0 0 2,12.136719 h 0.8632813 v 0.726562 H 2 A 0.13605426,0.13605426 0 0 0 1.8632812,13 v 0.863281 H 1 A 0.13605426,0.13605426 0 0 0 0.86328125,14 v 0.863281 H 0 A 0.13605426,0.13605426 0 0 0 -0.13671875,15 v 1 A 0.13605426,0.13605426 0 0 0 0,16.136719 h 1 0.8632812 v 0.726562 H 1 A 0.13605426,0.13605426 0 0 0 0.86328125,17 v 0.863281 H 0 A 0.13605426,0.13605426 0 0 0 -0.13671875,18 v 1 A 0.13605426,0.13605426 0 0 0 0,19.136719 H 0.86328125 V 20 A 0.13605426,0.13605426 0 0 0 1,20.136719 H 2.8632813 V 21 22 A 0.13605426,0.13605426 0 0 0 3,22.136719 H 5 A 0.13605426,0.13605426 0 0 0 5.1367187,22 V 21.136719 H 6.8632812 V 22 A 0.13605426,0.13605426 0 0 0 7,22.136719 H 9 A 0.13605426,0.13605426 0 0 0 9.1367188,22 V 21 20.136719 H 11 A 0.13605426,0.13605426 0 0 0 11.136719,20 V 19.136719 H 12 A 0.13605426,0.13605426 0 0 0 12.136719,19 V 18 A 0.13605426,0.13605426 0 0 0 12,17.863281 H 11.136719 V 17 A 0.13605426,0.13605426 0 0 0 11,16.863281 H 10.136719 V 16.136719 H 11 12 A 0.13605426,0.13605426 0 0 0 12.136719,16 V 15 A 0.13605426,0.13605426 0 0 0 12,14.863281 H 11.136719 V 14 A 0.13605426,0.13605426 0 0 0 11,13.863281 H 10.136719 V 13 A 0.13605426,0.13605426 0 0 0 10,12.863281 H 9.1367188 V 12.136719 H 10 11 A 0.13605426,0.13605426 0 0 0 11.136719,12 V 11 10 9.1367188 H 12 A 0.13605426,0.13605426 0 0 0 12.136719,9 V 8 A 0.13605426,0.13605426 0 0 0 12,7.8632812 H 11.136719 V 7 6 4 3 A 0.13605426,0.13605426 0 0 0 11,2.8632813 H 10.136719 V 2 1 A 0.13605426,0.13605426 0 0 0 10,0.86328125 H 9.1367188 V 0 A 0.13605426,0.13605426 0 0 0 9,-0.13671875 H 8 A 0.13605426,0.13605426 0 0 0 7.8632812,0 V 1 3.8632813 H 7.1367187 V 2 A 0.13605426,0.13605426 0 0 0 7,1.8632812 H 6 A 0.13605426,0.13605426 0 0 0 5.8632812,2 V 2.8632813 H 5 A 0.13605426,0.13605426 0 0 0 4.8632812,3 V 3.8632813 H 4.1367187 V 1 0 A 0.13605426,0.13605426 0 0 0 4,-0.13671875 Z"
      transform="translate(0.11328246,0.11328246)" />
   <g transform="translate(0.11328246,0.11328246)">
-    <rect x="3" y="0" width="1" height="1" fill="#521053" />
-    <rect x="8" y="0" width="1" height="1" fill="#521053" />
-    <rect x="2" y="1" width="1" height="1" fill="#521053" />
-    <rect x="3" y="1" width="1" height="3" fill="#3b0c3c" />
-    <rect x="8" y="1" width="1" height="3" fill="#3b0c3c" />
-    <rect x="9" y="1" width="1" height="1" fill="#521053" />
-    <rect x="2" y="2" width="1" height="2" fill="#3b0c3c" />
-    <rect x="6" y="2" width="1" height="3" fill="#fbf7f4" />
-    <rect x="9" y="2" width="1" height="3" fill="#3b0c3c" />
-    <rect x="1" y="3" width="1" height="1" fill="#521053" />
-    <rect x="5" y="3" width="1" height="1" fill="#fbf7f4" />
-    <rect x="10" y="3" width="1" height="1" fill="#521053" />
-    <rect x="1" y="4" width="1" height="1" fill="#fbf7f4" />
-    <rect x="2" y="4" width="2" height="1" fill="#fffbf9" />
-    <rect x="4" y="4" width="1" height="1" fill="#fbf7f4" />
-    <rect x="5" y="4" width="1" height="2" fill="#fffbf9" />
-    <rect x="7" y="4" width="1" height="1" fill="#fffbf9" />
-    <rect x="8" y="4" width="1" height="1" fill="#fbf7f4" />
-    <rect x="10" y="4" width="1" height="2" fill="#3b0c3c" />
-    <rect x="1" y="5" width="1" height="1" fill="#3b0c3c" />
-    <rect x="2" y="5" width="1" height="1" fill="#fbf7f4" />
-    <rect x="3" y="5" width="2" height="1" fill="#fffbf9" />
-    <rect x="6" y="5" width="1" height="2" fill="#fffbf9" />
-    <rect x="7" y="5" width="1" height="1" fill="#fbf7f4" />
-    <rect x="8" y="5" width="2" height="1" fill="#fffbf9" />
-    <rect x="1" y="6" width="1" height="1" fill="#fbf7f4" />
-    <rect x="2" y="6" width="1" height="2" fill="#fffbf9" />
-    <rect x="3" y="6" width="1" height="2" fill="#fbf7f4" />
-    <rect x="4" y="6" width="1" height="2" fill="#fffbf9" />
-    <rect x="5" y="6" width="1" height="1" fill="#fbf7f4" />
-    <rect x="7" y="6" width="2" height="2" fill="#fffbf9" />
-    <rect x="9" y="6" width="2" height="1" fill="#fbf7f4" />
-    <rect x="0" y="7" width="1" height="1" fill="#fbf7f4" />
-    <rect x="1" y="7" width="1" height="2" fill="#fffbf9" />
-    <rect x="5" y="7" width="1" height="2" fill="#fffbf9" />
-    <rect x="6" y="7" width="1" height="5" fill="#f6d1d0" />
-    <rect x="9" y="7" width="1" height="3" fill="#fffbf9" />
-    <rect x="10" y="7" width="1" height="2" fill="#fbf7f4" />
-    <rect x="2" y="8" width="1" height="1" fill="#fbf7f4" />
-    <rect x="3" y="8" width="1" height="1" fill="#521053" />
-    <rect x="4" y="8" width="1" height="4" fill="#f6d1d0" />
-    <rect x="7" y="8" width="1" height="4" fill="#f6d1d0" />
-    <rect x="8" y="8" width="1" height="1" fill="#521053" />
-    <rect x="11" y="8" width="1" height="1" fill="#fbf7f4" />
-    <rect x="0" y="9" width="1" height="1" fill="#fbf7f4" />
-    <rect x="1" y="9" width="1" height="1" fill="#b74785" />
-    <rect x="2" y="9" width="1" height="2" fill="#f6d1d0" />
-    <rect x="3" y="9" width="1" height="1" fill="#b74785" />
-    <rect x="5" y="9" width="1" height="3" fill="#f6d1d0" />
-    <rect x="8" y="9" width="1" height="1" fill="#b74785" />
-    <rect x="10" y="9" width="1" height="1" fill="#b74785" />
-    <rect x="1" y="10" width="1" height="1" fill="#a6437a" />
-    <rect x="3" y="10" width="1" height="2" fill="#f6d1d0" />
-    <rect x="8" y="10" width="2" height="1" fill="#f6d1d0" />
-    <rect x="10" y="10" width="1" height="1" fill="#a6437a" />
-    <rect x="2" y="11" width="1" height="1" fill="#ffffff" />
-    <rect x="8" y="11" width="1" height="1" fill="#f6d1d0" />
-    <rect x="9" y="11" width="1" height="1" fill="#ffffff" />
-    <rect x="10" y="11" width="1" height="1" fill="#fbf7f4" />
-    <rect x="3" y="12" width="2" height="1" fill="#ffffff" />
-    <rect x="5" y="12" width="2" height="4" fill="#565583" />
-    <rect x="7" y="12" width="2" height="1" fill="#ffffff" />
-    <rect x="2" y="13" width="1" height="1" fill="#fbf7f4" />
-    <rect x="3" y="13" width="1" height="3" fill="#ffffff" />
-    <rect x="4" y="13" width="1" height="1" fill="#565583" />
-    <rect x="7" y="13" width="1" height="1" fill="#565583" />
-    <rect x="8" y="13" width="1" height="3" fill="#ffffff" />
-    <rect x="9" y="13" width="1" height="1" fill="#fbf7f4" />
-    <rect x="1" y="14" width="1" height="1" fill="#fbf7f4" />
-    <rect x="2" y="14" width="1" height="2" fill="#ffffff" />
-    <rect x="4" y="14" width="1" height="1" fill="#ffffff" />
-    <rect x="7" y="14" width="1" height="1" fill="#ffffff" />
-    <rect x="9" y="14" width="1" height="2" fill="#ffffff" />
-    <rect x="10" y="14" width="1" height="1" fill="#fbf7f4" />
-    <rect x="0" y="15" width="1" height="1" fill="#f6d1d0" />
-    <rect x="1" y="15" width="1" height="1" fill="#565583" />
-    <rect x="4" y="15" width="1" height="1" fill="#565583" />
-    <rect x="7" y="15" width="1" height="1" fill="#565583" />
-    <rect x="10" y="15" width="1" height="1" fill="#565583" />
-    <rect x="11" y="15" width="1" height="1" fill="#f6d1d0" />
-    <rect x="2" y="16" width="1" height="1" fill="#a6437a" />
-    <rect x="3" y="16" width="6" height="2" fill="#222034" />
-    <rect x="9" y="16" width="1" height="1" fill="#a6437a" />
-    <rect x="1" y="17" width="1" height="1" fill="#a6437a" />
-    <rect x="2" y="17" width="1" height="2" fill="#b74785" />
-    <rect x="9" y="17" width="1" height="2" fill="#b74785" />
-    <rect x="10" y="17" width="1" height="1" fill="#a6437a" />
-    <rect x="0" y="18" width="1" height="1" fill="#a6437a" />
-    <rect x="1" y="18" width="1" height="1" fill="#b74785" />
-    <rect x="3" y="18" width="2" height="1" fill="#222034" />
-    <rect x="5" y="18" width="2" height="2" fill="#b74785" />
-    <rect x="7" y="18" width="2" height="1" fill="#222034" />
-    <rect x="10" y="18" width="1" height="1" fill="#b74785" />
-    <rect x="11" y="18" width="1" height="1" fill="#a6437a" />
-    <rect x="1" y="19" width="2" height="1" fill="#a6437a" />
-    <rect x="3" y="19" width="2" height="1" fill="#f6d1d0" />
-    <rect x="7" y="19" width="2" height="1" fill="#f6d1d0" />
-    <rect x="9" y="19" width="2" height="1" fill="#a6437a" />
-    <rect x="3" y="20" width="2" height="1" fill="#fffbf9" />
-    <rect x="5" y="20" width="2" height="1" fill="#a6437a" />
-    <rect x="7" y="20" width="2" height="1" fill="#fffbf9" />
-    <rect x="3" y="21" width="2" height="1" fill="#b74785" />
-    <rect x="7" y="21" width="2" height="1" fill="#b74785" />
+
+    <path fill="#521053" d="M3,0h1v1h-1zM8,0h1v1h-1zM2,1h1v1h-1zM9,1h1v1h-1zM1,3h1v1h-1zM10,3h1v1h-1zM3,8h1v1h-1zM8,8h1v1h-1z" />
+    <path fill="#3b0c3c" d="M3,1h1v3h-1zM8,1h1v3h-1zM2,2h1v2h-1zM9,2h1v3h-1zM10,4h1v2h-1zM1,5h1v1h-1z" />
+    <path fill="#fbf7f4" d="M6,2h1v3h-1zM5,3h1v1h-1zM1,4h1v1h-1zM4,4h1v1h-1zM8,4h1v1h-1zM2,5h1v1h-1zM7,5h1v1h-1zM1,6h1v1h-1zM3,6h1v2h-1zM5,6h1v1h-1zM9,6h2v1h-2zM0,7h1v1h-1zM10,7h1v2h-1zM2,8h1v1h-1zM11,8h1v1h-1zM0,9h1v1h-1zM10,11h1v1h-1zM2,13h1v1h-1zM9,13h1v1h-1zM1,14h1v1h-1zM10,14h1v1h-1z" />
+    <path fill="#fffbf9" d="M2,4h2v1h-2zM5,4h1v2h-1zM7,4h1v1h-1zM3,5h2v1h-2zM6,5h1v2h-1zM8,5h2v1h-2zM2,6h1v2h-1zM4,6h1v2h-1zM7,6h2v2h-2zM1,7h1v2h-1zM5,7h1v2h-1zM9,7h1v3h-1zM3,20h2v1h-2zM7,20h2v1h-2z" />
+    <path fill="#f6d1d0" d="M6,7h1v5h-1zM4,8h1v4h-1zM7,8h1v4h-1zM2,9h1v2h-1zM5,9h1v3h-1zM3,10h1v2h-1zM8,10h2v1h-2zM8,11h1v1h-1zM0,15h1v1h-1zM11,15h1v1h-1zM3,19h2v1h-2zM7,19h2v1h-2z" />
+    <path fill="#b74785" d="M1,9h1v1h-1zM3,9h1v1h-1zM8,9h1v1h-1zM10,9h1v1h-1zM2,17h1v2h-1zM9,17h1v2h-1zM1,18h1v1h-1zM5,18h2v2h-2zM10,18h1v1h-1zM3,21h2v1h-2zM7,21h2v1h-2z" />
+    <path fill="#a6437a" d="M1,10h1v1h-1zM10,10h1v1h-1zM2,16h1v1h-1zM9,16h1v1h-1zM1,17h1v1h-1zM10,17h1v1h-1zM0,18h1v1h-1zM11,18h1v1h-1zM1,19h2v1h-2zM9,19h2v1h-2zM5,20h2v1h-2z" />
+    <path fill="#ffffff" d="M2,11h1v1h-1zM9,11h1v1h-1zM3,12h2v1h-2zM7,12h2v1h-2zM3,13h1v3h-1zM8,13h1v3h-1zM2,14h1v2h-1zM4,14h1v1h-1zM7,14h1v1h-1zM9,14h1v2h-1z" />
+    <path fill="#565583" d="M5,12h2v4h-2zM4,13h1v1h-1zM7,13h1v1h-1zM1,15h1v1h-1zM4,15h1v1h-1zM7,15h1v1h-1zM10,15h1v1h-1z" />
+    <path fill="#222034" d="M3,16h6v2h-6zM3,18h2v1h-2zM7,18h2v1h-2z" />
   </g>
 </svg>
