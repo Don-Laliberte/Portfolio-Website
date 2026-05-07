@@ -5,3 +5,4 @@ dist
 .env
 .DS_Store
 .idea
+scripts/merge-sprite-rects.mjs
