@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { RESUME_ONE_PAGER } from '@/config/resume'
 import styles from './ResumeOnePager.module.css'
 
@@ -18,9 +19,9 @@ export function ResumeOnePager({
     <section className={styles.wrap}>
       {showActions ? (
         <div className={styles.actions} aria-label="Resume actions">
-          <a href="/#resume" className={`${styles.btn} ${styles.btnSecondary}`}>
+          <Link href="/#resume" className={`${styles.btn} ${styles.btnSecondary}`}>
             Back to portfolio
-          </a>
+          </Link>
           <button
             type="button"
             onClick={() => window.print()}
