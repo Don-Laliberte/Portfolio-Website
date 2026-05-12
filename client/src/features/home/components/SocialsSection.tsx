@@ -1,9 +1,11 @@
 'use client'
 
-import { m } from 'framer-motion'
+import { m, useInView, useReducedMotion } from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
 import { CyberPanel } from '@/components/shared/CyberPanel'
 import { MaskIcon } from '@/components/shared/MaskIcon'
 import { SectionHeading } from '@/components/shared/SectionHeading'
+import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
 import { useTheme } from '@/lib/theme-provider'
 
 // Each `brand` (and optional `brandLight`) is an RGB triplet string ("r g b"),
@@ -76,6 +78,68 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
 }
 
+type Social = (typeof socials)[number]
+
+function SocialCardTypedBody({ s }: { s: Social }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.15, margin: '0px 0px -8% 0px' })
+  const prefersReduced = useReducedMotion() ?? false
+  const [bodyDone, setBodyDone] = useState(false)
+
+  useEffect(() => {
+    if (prefersReduced) setBodyDone(true)
+  }, [prefersReduced])
+
+  const bodyState: LineState =
+    prefersReduced || bodyDone ? 'done' : inView ? 'running' : 'idle'
+
+  return (
+    <div ref={ref} className="flex h-full flex-col">
+      <div className="mb-4 flex items-center gap-4">
+        <div
+          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-sm"
+          style={{
+            background: 'rgb(var(--bg-panel) / 0.5)',
+            border: '1px solid rgb(var(--border) / 0.35)',
+          }}
+        >
+          <MaskIcon src={s.iconSrc} size={s.iconSize} color="rgb(var(--accent))" />
+        </div>
+        <div className="min-w-0">
+          <p className="font-display text-xl font-bold" style={{ color: 'rgb(var(--text))' }}>
+            {s.name}
+          </p>
+          <p className="truncate font-tech text-xs uppercase tracking-[0.2em] text-muted">
+            {s.handle}
+          </p>
+        </div>
+      </div>
+
+      <p className="mb-4 text-base leading-relaxed text-muted">
+        <TypewriterLine
+          segments={[{ text: s.description, final: 'muted' }]}
+          state={bodyState}
+          onComplete={() => setBodyDone(true)}
+          charIntervalMs={11}
+          maxLineDurationMs={1800}
+          settleMs={320}
+          showCursor={!prefersReduced && inView && !bodyDone}
+        />
+      </p>
+
+      <span className="social-cta mt-auto flex items-center gap-2 font-tech text-sm uppercase tracking-[0.22em]">
+        {s.cta}
+        <span
+          aria-hidden
+          className="social-cta-arrow inline-block transition-transform duration-200"
+        >
+          →
+        </span>
+      </span>
+    </div>
+  )
+}
+
 export function SocialsSection() {
   const { theme } = useTheme()
 
@@ -97,72 +161,26 @@ export function SocialsSection() {
       >
         {socials.map((s) => {
           const brandRgb = theme === 'light' && s.brandLight ? s.brandLight : s.brand
-          // Email uses mailto: which shouldn't open a new tab; everything else
-          // is an external link that should.
           const isMailto = s.href.startsWith('mailto:')
           return (
-          <m.a
-            key={s.name}
-            variants={item}
-            href={s.href}
-            target={isMailto ? undefined : '_blank'}
-            rel={isMailto ? undefined : 'noopener noreferrer'}
-            aria-label={s.cta}
-            className="group block no-underline"
-            // Override accent tokens (and --glow) locally so the entire card —
-            // top stripe, hover border/glow, icon fill, and CTA text — adopts
-            // the brand color for that social network. The brand is a plain
-            // RGB triplet string ("217 26 122"), the format our tokens expect.
-            style={{
-              ['--accent' as string]: brandRgb,
-              ['--accent-bright' as string]: brandRgb,
-              ['--glow' as string]: brandRgb,
-            }}
-          >
-            <CyberPanel
-              hover
-              className="flex h-full flex-col p-6"
+            <m.a
+              key={s.name}
+              variants={item}
+              href={s.href}
+              target={isMailto ? undefined : '_blank'}
+              rel={isMailto ? undefined : 'noopener noreferrer'}
+              aria-label={s.cta}
+              className="group block no-underline"
+              style={{
+                ['--accent' as string]: brandRgb,
+                ['--accent-bright' as string]: brandRgb,
+                ['--glow' as string]: brandRgb,
+              }}
             >
-              <div className="mb-4 flex items-center gap-4">
-                <div
-                  className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-sm"
-                  style={{
-                    background: 'rgb(var(--bg-panel) / 0.5)',
-                    border: '1px solid rgb(var(--border) / 0.35)',
-                  }}
-                >
-                  <MaskIcon
-                    src={s.iconSrc}
-                    size={s.iconSize}
-                    color="rgb(var(--accent))"
-                  />
-                </div>
-                <div className="min-w-0">
-                  <p
-                    className="font-display text-xl font-bold"
-                    style={{ color: 'rgb(var(--text))' }}
-                  >
-                    {s.name}
-                  </p>
-                  <p className="truncate font-tech text-xs uppercase tracking-[0.2em] text-muted">
-                    {s.handle}
-                  </p>
-                </div>
-              </div>
-
-              <p className="mb-4 text-base leading-relaxed text-muted">{s.description}</p>
-
-              <span className="social-cta mt-auto flex items-center gap-2 font-tech text-sm uppercase tracking-[0.22em]">
-                {s.cta}
-                <span
-                  aria-hidden
-                  className="social-cta-arrow inline-block transition-transform duration-200"
-                >
-                  →
-                </span>
-              </span>
-            </CyberPanel>
-          </m.a>
+              <CyberPanel hover className="flex h-full flex-col p-6">
+                <SocialCardTypedBody s={s} />
+              </CyberPanel>
+            </m.a>
           )
         })}
       </m.div>

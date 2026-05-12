@@ -1,7 +1,9 @@
 'use client'
 
-import { m } from 'framer-motion'
+import { m, useReducedMotion } from 'framer-motion'
+import { useCallback, useEffect, useState } from 'react'
 import { Divider } from '@/components/shared/Divider'
+import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
 import { HeroLaptop } from './HeroLaptop'
 
 const fadeUp = {
@@ -13,33 +15,54 @@ const fadeUp = {
   }),
 }
 
+const H1_SEGMENTS = [
+  { text: "Hello, I'm ", final: 'text' as const },
+  { text: 'Don!', final: 'accent' as const },
+]
+
+const EYEBROW =
+  'Software Developer · UCalgary Student · CSUS President 2027'
+
+const BODY =
+  'A young aspiring developer building tools, community sites, and occasionally pixel art. Currently leading CSUS and the UofC tech community.'
+
 export function HeroSection() {
+  const [mounted, setMounted] = useState(false)
+  const prefersReduced = useReducedMotion() ?? false
+  const [lineIndex, setLineIndex] = useState(0)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const lineCount = 3
+
+  useEffect(() => {
+    if (!mounted) return
+    if (prefersReduced) setLineIndex(lineCount)
+  }, [mounted, prefersReduced, lineCount])
+
+  const lineState = useCallback(
+    (i: number): LineState => {
+      if (!mounted) return 'idle'
+      if (prefersReduced) return 'done'
+      if (i < lineIndex) return 'done'
+      if (i === lineIndex) return 'running'
+      return 'idle'
+    },
+    [mounted, lineIndex, prefersReduced],
+  )
+
+  const onLineDone = useCallback(() => {
+    setLineIndex((j) => Math.min(j + 1, lineCount))
+  }, [lineCount])
+
   return (
     <m.div
       initial="hidden"
       animate="visible"
-      // Explicit top offset so the hero content sits cleanly below the sticky
-      // navbar (~56px tall + backdrop blur). Uses viewport units so the gap
-      // scales with screen height — tight on phones, generous on tall
-      // desktops. The section is align="start" (see page.tsx) so this padding
-      // actually shifts content instead of being absorbed by flex centering.
-      //
-      // Mobile / small-desktop: hero laptop stacked above the heading
-      // (flex-col-reverse keeps the text as the first child in source order
-      // for a11y / DOM order, but renders the laptop first visually).
-      //
-      // We hold the stacked layout all the way up to xl (≥1280px) because
-      // the eyebrow ("…CSUS PRESIDENT 2027") at Jersey 25 + 0.28em tracking is
-      // ~680px wide. Combined with the laptop + gap, the two-column
-      // layout needs ~960px of content area, which only fits comfortably
-      // once FullPageSection's lg:px-16 padding is offset by the wider
-      // xl viewport.
-      //
-      // `my-auto` centres the stacked layout vertically inside the
-      // FullPageSection's min-h-100vh track (parent uses justify-start, so
-      // auto margins absorb the free space equally top + bottom). On xl
-      // we reset it and restore the original pt-[14vh] top offset so the
-      // two-column layout still sits cleanly below the sticky navbar.
+      // Hero layout: laptop stacks above copy until xl; `my-auto` centers the
+      // stack in the full-page section. See FullPageSection + page.tsx for context.
       className="my-auto flex flex-col-reverse gap-8 xl:my-0 xl:flex-row xl:items-start xl:gap-14 xl:pt-[14vh] 2xl:gap-16"
     >
       <div className="flex min-w-0 flex-1 flex-col pr-0 xl:min-w-0 xl:pr-2">
@@ -47,10 +70,16 @@ export function HeroSection() {
           variants={fadeUp}
           custom={0.1}
           className="font-display text-5xl font-bold leading-[1.05] md:text-7xl heading-glow"
-          style={{ color: 'rgb(var(--text))' }}
         >
-          Hello, I&apos;m{' '}
-          <span style={{ color: 'rgb(var(--accent-bright))' }}>Don!</span>
+          <TypewriterLine
+            segments={H1_SEGMENTS}
+            state={lineState(0)}
+            onComplete={onLineDone}
+            charIntervalMs={19}
+            maxLineDurationMs={1500}
+            settleMs={340}
+            showCursor={lineIndex === 0}
+          />
         </m.h1>
 
         <Divider delay={0.25} className="my-6 max-w-sm" flip />
@@ -60,17 +89,31 @@ export function HeroSection() {
           custom={0.4}
           className="eyebrow max-w-full max-xl:whitespace-nowrap xl:whitespace-normal xl:max-w-[min(100%,36rem)]"
         >
-          Software Developer · UCalgary Student · CSUS President 2027
+          <TypewriterLine
+            segments={[{ text: EYEBROW, final: 'eyebrow' }]}
+            state={lineState(1)}
+            onComplete={onLineDone}
+            charIntervalMs={15}
+            maxLineDurationMs={2000}
+            settleMs={320}
+            showCursor={lineIndex === 1}
+          />
         </m.span>
 
         <m.p
           variants={fadeUp}
           custom={0.5}
           className="mt-5 max-w-[560px] font-body text-xl leading-relaxed md:text-2xl"
-          style={{ color: 'rgb(var(--text) / 0.75)' }}
         >
-          A young aspiring developer building tools, community sites, and
-          occasionally pixel art. Currently leading CSUS and the UofC tech community.
+          <TypewriterLine
+            segments={[{ text: BODY, final: 'bodyHero' }]}
+            state={lineState(2)}
+            onComplete={onLineDone}
+            charIntervalMs={12}
+            maxLineDurationMs={2600}
+            settleMs={340}
+            showCursor={lineIndex === 2}
+          />
         </m.p>
 
         <m.div
