@@ -76,7 +76,11 @@ export function HeroLaptop() {
       aria-label="Animated laptop with portrait on screen"
     >
       <Suspense fallback={<HeroLaptopFallback />}>
-        <HeroLaptopScene replayKey={replayKey} reducedMotion={reducedMotion} />
+        <HeroLaptopScene
+          replayKey={replayKey}
+          reducedMotion={reducedMotion}
+          soundEnabled={!reducedMotion}
+        />
       </Suspense>
     </m.div>
   )

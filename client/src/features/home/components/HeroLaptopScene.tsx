@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { useEffect, useLayoutEffect, useMemo, useRef } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import type { Group, Object3D } from 'three'
 
@@ -44,6 +44,24 @@ const CAMERA_LOOK_DOWN_FRAC = -2.5
  */
 const CAMERA_SPIN_ZOOM_MULT = 1.44
 
+/** Camera zoom blend: smoothstep starts at this t (stay wide longer during spin). */
+const CAMERA_ZOOM_BLEND_START = 0.4
+/** Raise smoothstep output to this power for a snappier settle into final framing. */
+const CAMERA_ZOOM_CURVE_POWER = 1.35
+
+/** Lid micro-settle: duration (ms) and peak additive rotation (rad) on local X. */
+const SETTLE_DURATION_MS = 130
+const SETTLE_PEAK_RAD = 0.038
+
+/** Idle pointer tilt: max radians pitch/yaw from cursor at canvas edge. */
+const POINTER_TILT_MAX_RAD = 0.06
+const POINTER_TILT_SMOOTH = 8
+
+/** Latch SFX (litupsubway-ui-open-sfx). */
+const LATCH_SOUND_URL = '/sounds/hero-laptop-latch.mp3'
+/** Startup / menu layer (dragon-studio), when screen emissive reveal begins (see REVEAL_START_T). */
+const STARTUP_SOUND_URL = '/sounds/hero-laptop-startup.mp3'
+
 useGLTF.preload(MODEL_URL)
 
 function cubicOut(u: number) {
@@ -56,9 +74,10 @@ function easeOutBack(u: number) {
   return 1 + c3 * (u - 1) ** 3 + c1 * (u - 1) ** 2
 }
 
-/** Slow start → most zoom-in while the lid is opening / late in the intro. */
-function easeInCubic(u: number) {
-  return u * u * u
+/** Camera stays wider longer, then eases into end pose. */
+function cameraZoomBlend(t: number) {
+  const edge = THREE.MathUtils.smoothstep(t, CAMERA_ZOOM_BLEND_START, 1)
+  return edge ** CAMERA_ZOOM_CURVE_POWER
 }
 
 function isMeshMaterial(
@@ -67,15 +86,35 @@ function isMeshMaterial(
   return !Array.isArray(m) && 'map' in m && 'emissiveIntensity' in m
 }
 
+const emissiveWhite = new THREE.Color(0xffffff)
+
+function playCachedAudio(ref: MutableRefObject<HTMLAudioElement | null>, url: string) {
+  if (typeof window === 'undefined') return
+  if (!ref.current) {
+    ref.current = new Audio(url)
+    ref.current.preload = 'auto'
+  }
+  const a = ref.current
+  try {
+    a.currentTime = 0
+    void a.play().catch(() => {
+      /* autoplay / decode */
+    })
+  } catch {
+    /* ignore */
+  }
+}
+
 type LaptopModelProps = {
   replayKey: number
   reducedMotion: boolean
+  soundEnabled: boolean
 }
 
-function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
+function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProps) {
   const { scene } = useGLTF(MODEL_URL) as { scene: Group }
   const loadedTexture = useLoader(THREE.TextureLoader, HEADSHOT_URL)
-  const { camera, invalidate } = useThree()
+  const { camera, gl, invalidate } = useThree()
 
   const texture = useMemo(() => {
     const t = loadedTexture.clone()
@@ -94,11 +133,16 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
   useEffect(() => {
     return () => {
       texture.dispose()
+      latchAudioRef.current?.pause()
+      latchAudioRef.current = null
+      startupAudioRef.current?.pause()
+      startupAudioRef.current = null
     }
   }, [texture])
 
   const rigRef = useRef<Group>(null)
   const spinRef = useRef<Group>(null)
+  const tiltRef = useRef<Group>(null)
   const screenRef = useRef<Object3D | null>(null)
   const screenMatRef = useRef<THREE.MeshStandardMaterial | THREE.MeshPhysicalMaterial | null>(
     null,
@@ -107,6 +151,14 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
   const elapsedMs = useRef(0)
   const replayKeyRef = useRef(replayKey)
   const idleTime = useRef(0)
+  const tiltTargetRef = useRef(new THREE.Vector2(0, 0))
+  const settleStartedRef = useRef(false)
+  const settleElapsedMsRef = useRef(0)
+  const prevLidURef = useRef(-1)
+  const latchPlayedRef = useRef(false)
+  const startupPlayedRef = useRef(false)
+  const latchAudioRef = useRef<HTMLAudioElement | null>(null)
+  const startupAudioRef = useRef<HTMLAudioElement | null>(null)
 
   const camFraming = useRef({
     ready: false,
@@ -115,6 +167,26 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
     look: new THREE.Vector3(),
   })
   const scratchCamPos = useRef(new THREE.Vector3())
+
+  useEffect(() => {
+    const canvas = gl.domElement
+    const onMove = (e: PointerEvent) => {
+      const r = canvas.getBoundingClientRect()
+      if (r.width < 1 || r.height < 1) return
+      const nx = ((e.clientX - r.left) / r.width) * 2 - 1
+      const ny = -(((e.clientY - r.top) / r.height) * 2 - 1)
+      tiltTargetRef.current.set(nx * POINTER_TILT_MAX_RAD, ny * POINTER_TILT_MAX_RAD)
+    }
+    const onLeave = () => {
+      tiltTargetRef.current.set(0, 0)
+    }
+    canvas.addEventListener('pointermove', onMove, { passive: true })
+    canvas.addEventListener('pointerleave', onLeave)
+    return () => {
+      canvas.removeEventListener('pointermove', onMove)
+      canvas.removeEventListener('pointerleave', onLeave)
+    }
+  }, [gl])
 
   useLayoutEffect(() => {
     const screen = scene.getObjectByName('Screen')
@@ -187,15 +259,19 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
 
   useFrame((_, delta) => {
     const spin = spinRef.current
+    const tilt = tiltRef.current
     const screen = screenRef.current
     const mat = screenMatRef.current
-    if (!spin || !screen || !mat) return
+    if (!spin || !tilt || !screen || !mat) return
 
     if (reducedMotion) {
       screen.rotation.x = OPEN_LID_X
       spin.rotation.y = 0
       spin.rotation.x = 0
       spin.rotation.z = 0
+      tilt.rotation.x = 0
+      tilt.rotation.y = 0
+      mat.emissive.copy(emissiveWhite)
       mat.emissiveIntensity = REVEAL_END_INTENSITY
       const fmRm = camFraming.current
       if (fmRm.ready && camera instanceof THREE.PerspectiveCamera) {
@@ -213,8 +289,16 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
       spin.rotation.y = 0
       spin.rotation.x = 0
       spin.rotation.z = 0
+      tilt.rotation.x = 0
+      tilt.rotation.y = 0
       screen.rotation.x = CLOSED_LID_X
+      mat.emissive.copy(emissiveWhite)
       mat.emissiveIntensity = 0
+      settleStartedRef.current = false
+      settleElapsedMsRef.current = 0
+      prevLidURef.current = -1
+      latchPlayedRef.current = false
+      startupPlayedRef.current = false
       const fmReplay = camFraming.current
       if (fmReplay.ready && camera instanceof THREE.PerspectiveCamera) {
         camera.position.copy(fmReplay.start)
@@ -231,7 +315,7 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
       if (t >= 1) {
         camera.position.copy(fm.end)
       } else {
-        const camBlend = easeInCubic(t)
+        const camBlend = cameraZoomBlend(t)
         scratchCamPos.current.lerpVectors(fm.start, fm.end, camBlend)
         camera.position.copy(scratchCamPos.current)
       }
@@ -243,27 +327,70 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
     const spinU = Math.min(1, t / SPIN_END_T)
     spin.rotation.y = cubicOut(spinU) * Math.PI * 4
 
-    // Lid: CLOSED_LID_X → 0 from LID_START_T to LID_END_T
+    // Lid: CLOSED_LID_X → 0 from LID_START_T to LID_END_T + micro-settle after fully open
     let lidU = 0
     if (t <= LID_START_T) lidU = 0
     else if (t >= LID_END_T) lidU = 1
     else lidU = (t - LID_START_T) / (LID_END_T - LID_START_T)
-    screen.rotation.x = THREE.MathUtils.lerp(CLOSED_LID_X, OPEN_LID_X, easeOutBack(lidU))
 
-    // Reveal emissive
+    const baseLidX = THREE.MathUtils.lerp(CLOSED_LID_X, OPEN_LID_X, easeOutBack(lidU))
+    let settleOffset = 0
+    if (lidU >= 1) {
+      if (!settleStartedRef.current) {
+        settleStartedRef.current = true
+        settleElapsedMsRef.current = 0
+      }
+      settleElapsedMsRef.current += delta * 1000
+      if (settleElapsedMsRef.current <= SETTLE_DURATION_MS) {
+        settleOffset =
+          SETTLE_PEAK_RAD *
+          Math.sin(Math.PI * Math.min(1, settleElapsedMsRef.current / SETTLE_DURATION_MS))
+      }
+    } else {
+      settleStartedRef.current = false
+    }
+    screen.rotation.x = baseLidX + settleOffset
+
+    // Latch once when lid first leaves closed (lidU: 0 → >0)
+    if (soundEnabled && prevLidURef.current <= 0 && lidU > 0 && !latchPlayedRef.current) {
+      latchPlayedRef.current = true
+      playCachedAudio(latchAudioRef, LATCH_SOUND_URL)
+    }
+    prevLidURef.current = lidU
+
+    // Startup when emissive / screen “lights up” (same timeline as texture feeling active)
+    if (soundEnabled && t >= REVEAL_START_T && !startupPlayedRef.current) {
+      startupPlayedRef.current = true
+      playCachedAudio(startupAudioRef, STARTUP_SOUND_URL)
+    }
+
+    // Reveal emissive (white only; emissiveMap stays the headshot)
     if (t < REVEAL_START_T) {
+      mat.emissive.copy(emissiveWhite)
       mat.emissiveIntensity = 0
     } else {
       const rU = (t - REVEAL_START_T) / (1 - REVEAL_START_T)
-      mat.emissiveIntensity = THREE.MathUtils.lerp(0, REVEAL_END_INTENSITY, Math.min(1, rU))
+      const rClamped = Math.min(1, rU)
+      mat.emissive.copy(emissiveWhite)
+      mat.emissiveIntensity = THREE.MathUtils.lerp(0, REVEAL_END_INTENSITY, rClamped)
     }
 
     if (t >= 1) {
+      mat.emissive.copy(emissiveWhite)
+      mat.emissiveIntensity = REVEAL_END_INTENSITY
       idleTime.current += delta
       spin.rotation.y += delta * IDLE_YAW_DRIFT
       spin.rotation.x = Math.sin(idleTime.current * IDLE_PITCH_FREQ) * IDLE_PITCH_AMP
       spin.rotation.z = Math.sin(idleTime.current * IDLE_ROLL_FREQ + 1.2) * IDLE_ROLL_AMP
+
+      const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
+      tilt.rotation.x += (tiltTargetRef.current.y - tilt.rotation.x) * k
+      tilt.rotation.y += (tiltTargetRef.current.x - tilt.rotation.y) * k
       invalidate()
+    } else {
+      const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
+      tilt.rotation.x += (0 - tilt.rotation.x) * k
+      tilt.rotation.y += (0 - tilt.rotation.y) * k
     }
   })
 
@@ -272,25 +399,34 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
     const screen = screenRef.current
     const mat = screenMatRef.current
     const spin = spinRef.current
+    const tilt = tiltRef.current
     if (!screen || !mat) return
     if (reducedMotion) {
       screen.rotation.x = OPEN_LID_X
+      mat.emissive.copy(emissiveWhite)
       mat.emissiveIntensity = REVEAL_END_INTENSITY
       if (spin) {
         spin.rotation.y = 0
         spin.rotation.x = 0
         spin.rotation.z = 0
       }
+      if (tilt) {
+        tilt.rotation.x = 0
+        tilt.rotation.y = 0
+      }
       return
     }
     screen.rotation.x = CLOSED_LID_X
+    mat.emissive.copy(emissiveWhite)
     mat.emissiveIntensity = 0
   }, [scene, texture, reducedMotion])
 
   return (
     <group ref={rigRef}>
       <group ref={spinRef}>
-        <primitive object={scene} />
+        <group ref={tiltRef}>
+          <primitive object={scene} />
+        </group>
       </group>
     </group>
   )
@@ -299,9 +435,14 @@ function LaptopModel({ replayKey, reducedMotion }: LaptopModelProps) {
 export type HeroLaptopSceneProps = {
   replayKey: number
   reducedMotion: boolean
+  soundEnabled: boolean
 }
 
-export default function HeroLaptopScene({ replayKey, reducedMotion }: HeroLaptopSceneProps) {
+export default function HeroLaptopScene({
+  replayKey,
+  reducedMotion,
+  soundEnabled,
+}: HeroLaptopSceneProps) {
   return (
     <Canvas
       className="h-full w-full touch-none"
@@ -313,7 +454,7 @@ export default function HeroLaptopScene({ replayKey, reducedMotion }: HeroLaptop
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
       <directionalLight position={[-3, 2, -2]} intensity={0.25} />
-      <LaptopModel replayKey={replayKey} reducedMotion={reducedMotion} />
+      <LaptopModel replayKey={replayKey} reducedMotion={reducedMotion} soundEnabled={soundEnabled} />
     </Canvas>
   )
 }
