@@ -143,27 +143,29 @@ export function Navbar() {
         borderBottom: '1px solid rgb(var(--border) / 0.2)',
       }}
     >
-      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between px-4 py-2 md:px-6">
+      <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-4 py-2 md:px-6">
         <Logo onHomeClick={() => scrollToSection('#hero')} />
 
-        {/* Desktop nav */}
-        <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
-          {NAV_ITEMS.map((item) => (
-            <NavLink
-              key={item.href}
-              href={item.href}
-              label={item.label}
-              active={activeSectionId === item.href.slice(1)}
-              onSelect={closeMenu}
-            />
-          ))}
-          <div className="ml-3">
+        {/* Desktop: nav links + theme toggle share one cross-axis-aligned row */}
+        <div className="hidden min-h-0 min-w-0 shrink-0 items-center gap-1 md:flex">
+          <nav aria-label="Primary" className="flex min-h-0 items-center gap-1">
+            {NAV_ITEMS.map((item) => (
+              <NavLink
+                key={item.href}
+                href={item.href}
+                label={item.label}
+                active={activeSectionId === item.href.slice(1)}
+                onSelect={closeMenu}
+              />
+            ))}
+          </nav>
+          <div className="flex shrink-0 items-center pl-2 md:pl-3">
             <ThemeToggleButton />
           </div>
-        </nav>
+        </div>
 
         {/* Mobile controls */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex shrink-0 items-center gap-2 md:hidden">
           <ThemeToggleButton />
           <button
             type="button"

@@ -41,7 +41,6 @@ export function AboutSection() {
         accent="Laliberte"
         subtitle="Computer Science student at the University of Calgary. I'm passionate about our growing community and creating the impact I want to see with my work."
       />
-
       <m.div
         initial="hidden"
         whileInView="visible"

@@ -277,10 +277,19 @@ function ChevronRight() {
 
 function LinkIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1.5 1.5" />
-      <path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1.5-1.5" />
-    </svg>
+    <span
+      className="relative block h-[14px] w-[14px] shrink-0 overflow-hidden [image-rendering:pixelated]"
+      aria-hidden
+    >
+      <img
+        src="/icons/link.svg"
+        alt=""
+        width={14}
+        height={14}
+        className="block h-full w-full max-w-none object-contain [image-rendering:pixelated]"
+        draggable={false}
+      />
+    </span>
   )
 }
 

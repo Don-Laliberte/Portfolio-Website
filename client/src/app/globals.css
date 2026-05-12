@@ -308,22 +308,18 @@ body.modal-open .scroll-container {
   }
 }
 
-/* Theme toggle button: same visual language as .btn-accent but compact, with
- * a pulse-style glow on hover to match other accent controls. */
+/* Theme toggle: no panel — color/hover from ThemeToggleButton utilities. */
 .theme-toggle-btn {
-  border: 1px solid rgb(var(--border) / 0.55);
-  background: rgb(var(--accent) / 0.15);
-  color: rgb(var(--accent-bright));
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 @media (hover: hover) {
   .theme-toggle-btn:hover,
   .theme-toggle-btn:focus-visible {
-    background: rgb(var(--accent) / 0.28);
-    border-color: rgb(var(--accent-bright) / 0.75);
-    color: rgb(var(--text));
-    box-shadow: 0 0 18px rgb(var(--glow) / 0.35);
+    background: transparent;
+    box-shadow: none;
   }
 }
 
