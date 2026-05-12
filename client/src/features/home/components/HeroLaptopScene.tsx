@@ -2,9 +2,11 @@
 
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { useEffect, useLayoutEffect, useMemo, useRef, type MutableRefObject } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useCallback, type MutableRefObject } from 'react'
 import * as THREE from 'three'
 import type { Group, Object3D } from 'three'
+
+import { pixelifySans } from '@/lib/fonts'
 
 const MODEL_URL = '/models/portfolio-laptop.glb'
 /** Replace with a larger export (e.g. 1600–2400px wide) for sharper detail on the 3D screen. */
@@ -21,6 +23,34 @@ const LID_START_T = 0.2
 const LID_END_T = 0.95
 const REVEAL_START_T = 0.85
 const REVEAL_END_INTENSITY = 0.9
+
+/** Boot screen: pink loading bar fills 0 → 1 well before the boot fade-out. */
+const LOADING_BAR_FILL_START_T = 0.22
+const LOADING_BAR_FILL_END_T = 0.74
+
+/**
+ * Boot screen emissive curve:
+ * - `BOOT_GLOW_FADE_IN_T` → `BOOT_GLOW_FULL_T`: ramp on as lid opens
+ * - hold until `BOOT_GLOW_HOLD_END_T`
+ * - `BOOT_GLOW_HOLD_END_T` → `REVEAL_START_T`: fade boot out to black
+ * - `REVEAL_START_T` → `HEADSHOT_FADE_IN_END_T`: headshot fades in (original look)
+ */
+const BOOT_GLOW_INTENSITY = 0.85
+const BOOT_GLOW_FADE_IN_T = LID_START_T
+const BOOT_GLOW_FULL_T = 0.45
+const BOOT_GLOW_HOLD_END_T = 0.78
+const HEADSHOT_FADE_IN_END_T = 1.0
+
+/** Boot “LOADING” label: dot typing cadence (ms per extra dot) and blink rate (Hz). */
+const BOOT_LABEL_TIME_MS_PER_DOT = 420
+const BOOT_LABEL_BLINK_HZ = 1.1
+const BOOT_LABEL_FONT_SCALE = 0.2
+
+const BOOT_CANVAS_W = 512
+const BOOT_CANVAS_H = 256
+
+/** Canvas 2D `font` stack from `next/font` (matches root layout display font). */
+const BOOT_LABEL_FONT_STACK = pixelifySans.style.fontFamily
 
 /** Post-open idle motion (after normalized timeline t ≥ 1). */
 const IDLE_YAW_DRIFT = 0.092
@@ -88,6 +118,72 @@ function isMeshMaterial(
 
 const emissiveWhite = new THREE.Color(0xffffff)
 
+type BootScreenResources = {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+  texture: THREE.CanvasTexture
+}
+
+function createBootScreenTexture(): BootScreenResources {
+  const canvas = document.createElement('canvas')
+  canvas.width = BOOT_CANVAS_W
+  canvas.height = BOOT_CANVAS_H
+  const ctx = canvas.getContext('2d', { alpha: false })
+  if (!ctx) {
+    throw new Error('2d context required for laptop boot screen')
+  }
+  const tex = new THREE.CanvasTexture(canvas)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.flipY = false
+  tex.generateMipmaps = false
+  tex.minFilter = THREE.LinearFilter
+  tex.magFilter = THREE.LinearFilter
+  tex.wrapS = THREE.ClampToEdgeWrapping
+  tex.wrapT = THREE.ClampToEdgeWrapping
+  return { canvas, ctx, texture: tex }
+}
+
+/** Pink “OS boot” frame: dark magenta field + rounded track + fill by `progress` (0–1). */
+function drawBootLoadingFrame(ctx: CanvasRenderingContext2D, progress: number, timeMs: number) {
+  const w = BOOT_CANVAS_W
+  const h = BOOT_CANVAS_H
+  ctx.fillStyle = '#1a0d16'
+  ctx.fillRect(0, 0, w, h)
+
+  const marginX = w * 0.14
+  const trackW = w - marginX * 2
+  const barH = h * 0.072
+  const barY = h * 0.5 - barH * 0.5
+  const r = barH * 0.5
+  const p = THREE.MathUtils.clamp(progress, 0, 1)
+
+  ctx.fillStyle = '#3d1530'
+  ctx.beginPath()
+  ctx.roundRect(marginX, barY, trackW, barH, r)
+  ctx.fill()
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.roundRect(marginX, barY, trackW, barH, r)
+  ctx.clip()
+  ctx.fillStyle = '#ff6eb3'
+  const fillW = Math.max(barH * 0.35, trackW * p)
+  ctx.fillRect(marginX, barY, fillW, barH)
+  ctx.restore()
+
+  const dotCount = Math.floor(timeMs / BOOT_LABEL_TIME_MS_PER_DOT) % 4
+  const label = `LOADING${'.'.repeat(dotCount)}`
+  const blink =
+    0.38 + 0.62 * (0.5 + 0.5 * Math.sin((timeMs / 1000) * Math.PI * 2 * BOOT_LABEL_BLINK_HZ))
+  const alpha = THREE.MathUtils.clamp(0.28 + 0.72 * blink, 0.12, 1)
+
+  ctx.fillStyle = `rgba(255, 140, 200, ${alpha})`
+  ctx.font = `600 ${Math.round(h * BOOT_LABEL_FONT_SCALE)}px ${BOOT_LABEL_FONT_STACK}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.fillText(label, w * 0.5, h * 0.28)
+}
+
 function playCachedAudio(ref: MutableRefObject<HTMLAudioElement | null>, url: string) {
   if (typeof window === 'undefined') return
   if (!ref.current) {
@@ -130,9 +226,22 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
     return t
   }, [loadedTexture])
 
+  const bootScreenRef = useRef<BootScreenResources | null>(null)
+  const getBootScreen = useCallback(() => {
+    if (!bootScreenRef.current) {
+      const b = createBootScreenTexture()
+      drawBootLoadingFrame(b.ctx, 0, 0)
+      b.texture.needsUpdate = true
+      bootScreenRef.current = b
+    }
+    return bootScreenRef.current
+  }, [])
+
   useEffect(() => {
     return () => {
       texture.dispose()
+      bootScreenRef.current?.texture.dispose()
+      bootScreenRef.current = null
       latchAudioRef.current?.pause()
       latchAudioRef.current = null
       startupAudioRef.current?.pause()
@@ -157,6 +266,7 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
   const prevLidURef = useRef(-1)
   const latchPlayedRef = useRef(false)
   const startupPlayedRef = useRef(false)
+  const headshotRevealedRef = useRef(false)
   const latchAudioRef = useRef<HTMLAudioElement | null>(null)
   const startupAudioRef = useRef<HTMLAudioElement | null>(null)
 
@@ -192,19 +302,26 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
     const screen = scene.getObjectByName('Screen')
     screenRef.current = screen ?? null
 
+    const boot = reducedMotion ? null : getBootScreen()
+
     scene.traverse((obj) => {
       if (!(obj instanceof THREE.Mesh)) return
       const mat = obj.material
       if (!isMeshMaterial(mat)) return
       if (mat.name !== 'ScreenDisplay') return
-      mat.map = texture
-      mat.emissiveMap = texture
+      if (reducedMotion) {
+        mat.map = texture
+        mat.emissiveMap = texture
+      } else if (boot) {
+        mat.map = boot.texture
+        mat.emissiveMap = boot.texture
+      }
       mat.emissive = new THREE.Color(0xffffff)
       mat.emissiveIntensity = 0
       mat.needsUpdate = true
       screenMatRef.current = mat
     })
-  }, [scene, texture])
+  }, [scene, texture, reducedMotion, getBootScreen])
 
   // GLB root = Blender spin origin (do not offset rig/spin). Aim camera at mesh bounds.
   useLayoutEffect(() => {
@@ -299,6 +416,13 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       prevLidURef.current = -1
       latchPlayedRef.current = false
       startupPlayedRef.current = false
+      headshotRevealedRef.current = false
+      const boot = getBootScreen()
+      mat.map = boot.texture
+      mat.emissiveMap = boot.texture
+      mat.needsUpdate = true
+      drawBootLoadingFrame(boot.ctx, 0, 0)
+      boot.texture.needsUpdate = true
       const fmReplay = camFraming.current
       if (fmReplay.ready && camera instanceof THREE.PerspectiveCamera) {
         camera.position.copy(fmReplay.start)
@@ -364,15 +488,38 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       playCachedAudio(startupAudioRef, STARTUP_SOUND_URL)
     }
 
-    // Reveal emissive (white only; emissiveMap stays the headshot)
+    // Pink boot loading bar on canvas texture; swap to headshot at reveal
     if (t < REVEAL_START_T) {
-      mat.emissive.copy(emissiveWhite)
+      const boot = getBootScreen()
+      const barU = THREE.MathUtils.clamp(
+        THREE.MathUtils.smoothstep(t, LOADING_BAR_FILL_START_T, LOADING_BAR_FILL_END_T),
+        0,
+        1,
+      )
+      drawBootLoadingFrame(boot.ctx, barU, elapsedMs.current)
+      boot.texture.needsUpdate = true
+    } else if (!headshotRevealedRef.current) {
+      headshotRevealedRef.current = true
+      mat.map = texture
+      mat.emissiveMap = texture
+      mat.needsUpdate = true
+    }
+
+    // Emissive: boot fades in, holds, fades out → headshot fades in from black.
+    mat.emissive.copy(emissiveWhite)
+    if (t < BOOT_GLOW_FADE_IN_T) {
       mat.emissiveIntensity = 0
+    } else if (t < BOOT_GLOW_FULL_T) {
+      const u = THREE.MathUtils.smoothstep(t, BOOT_GLOW_FADE_IN_T, BOOT_GLOW_FULL_T)
+      mat.emissiveIntensity = u * BOOT_GLOW_INTENSITY
+    } else if (t < BOOT_GLOW_HOLD_END_T) {
+      mat.emissiveIntensity = BOOT_GLOW_INTENSITY
+    } else if (t < REVEAL_START_T) {
+      const u = THREE.MathUtils.smoothstep(t, BOOT_GLOW_HOLD_END_T, REVEAL_START_T)
+      mat.emissiveIntensity = BOOT_GLOW_INTENSITY * (1 - u)
     } else {
-      const rU = (t - REVEAL_START_T) / (1 - REVEAL_START_T)
-      const rClamped = Math.min(1, rU)
-      mat.emissive.copy(emissiveWhite)
-      mat.emissiveIntensity = THREE.MathUtils.lerp(0, REVEAL_END_INTENSITY, rClamped)
+      const u = THREE.MathUtils.smoothstep(t, REVEAL_START_T, HEADSHOT_FADE_IN_END_T)
+      mat.emissiveIntensity = u * REVEAL_END_INTENSITY
     }
 
     if (t >= 1) {

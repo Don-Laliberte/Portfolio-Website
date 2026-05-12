@@ -1,24 +1,10 @@
 import type { Metadata, Viewport } from 'next'
-import { Jersey_25, Pixelify_Sans } from 'next/font/google'
 import Script from 'next/script'
 import { MainLayout } from '@/features/layout'
+import { jersey25, pixelifySans } from '@/lib/fonts'
 import { ThemeProvider, themeInitScript } from '@/lib/theme-provider'
 import { MotionProvider } from '@/lib/motion-provider'
 import './globals.css'
-
-const pixelify = Pixelify_Sans({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700'],
-  variable: '--font-display-loaded',
-  display: 'swap',
-})
-
-const jersey25 = Jersey_25({
-  subsets: ['latin'],
-  weight: '400',
-  variable: '--font-jersey-loaded',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'Don Laliberte',
@@ -40,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${pixelify.variable} ${jersey25.variable}`}
+      className={`${pixelifySans.variable} ${jersey25.variable}`}
     >
       <head />
       <body suppressHydrationWarning>
