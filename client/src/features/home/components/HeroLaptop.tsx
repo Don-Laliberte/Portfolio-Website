@@ -34,6 +34,10 @@ export function HeroLaptop() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [replayKey, setReplayKey] = useState(0)
   const [reducedMotion, setReducedMotion] = useState(false)
+  const [inView, setInView] = useState(false)
+  const [pageVisible, setPageVisible] = useState(
+    () => typeof document !== 'undefined' && document.visibilityState === 'visible',
+  )
   const leftViewRef = useRef(false)
 
   useEffect(() => {
@@ -45,6 +49,12 @@ export function HeroLaptop() {
   }, [])
 
   useEffect(() => {
+    const onVis = () => setPageVisible(document.visibilityState === 'visible')
+    document.addEventListener('visibilitychange', onVis)
+    return () => document.removeEventListener('visibilitychange', onVis)
+  }, [])
+
+  useEffect(() => {
     const el = rootRef.current
     if (!el) return
 
@@ -53,9 +63,11 @@ export function HeroLaptop() {
         const entry = entries[0]
         if (!entry) return
         if (!entry.isIntersecting) {
+          setInView(false)
           leftViewRef.current = true
           return
         }
+        setInView(true)
         if (leftViewRef.current) {
           setReplayKey((k) => k + 1)
           leftViewRef.current = false
@@ -80,6 +92,7 @@ export function HeroLaptop() {
           replayKey={replayKey}
           reducedMotion={reducedMotion}
           soundEnabled={!reducedMotion}
+          runnerActive={inView && pageVisible}
         />
       </Suspense>
     </m.div>

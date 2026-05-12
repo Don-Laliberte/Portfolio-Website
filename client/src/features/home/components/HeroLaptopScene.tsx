@@ -184,8 +184,12 @@ function drawBootLoadingFrame(ctx: CanvasRenderingContext2D, progress: number, t
   ctx.fillText(label, w * 0.5, h * 0.28)
 }
 
-function playCachedAudio(ref: MutableRefObject<HTMLAudioElement | null>, url: string) {
-  if (typeof window === 'undefined') return
+/** Autoplay policy: retry SFX this often until `play()` succeeds (Chrome blocks rAF-only play). */
+const SFX_RETRY_MS = 120
+const SFX_RETRY_WINDOW_MS = 14_000
+
+function playCachedAudio(ref: MutableRefObject<HTMLAudioElement | null>, url: string): Promise<void> {
+  if (typeof window === 'undefined') return Promise.resolve()
   if (!ref.current) {
     ref.current = new Audio(url)
     ref.current.preload = 'auto'
@@ -193,24 +197,67 @@ function playCachedAudio(ref: MutableRefObject<HTMLAudioElement | null>, url: st
   const a = ref.current
   try {
     a.currentTime = 0
-    void a.play().catch(() => {
-      /* autoplay / decode */
-    })
+    return a.play().then(
+      () => undefined,
+      () => undefined,
+    )
   } catch {
-    /* ignore */
+    return Promise.resolve()
   }
+}
+
+/**
+ * Run inside a user gesture: muted play → pause primes the element so later `play()` from rAF works
+ * (Chrome autoplay policy).
+ */
+function primeHeroLaptopAudioInGesture(
+  latchRef: MutableRefObject<HTMLAudioElement | null>,
+  startupRef: MutableRefObject<HTMLAudioElement | null>,
+) {
+  const primeOne = (r: MutableRefObject<HTMLAudioElement | null>, url: string) => {
+    if (!r.current) {
+      r.current = new Audio(url)
+      r.current.preload = 'auto'
+    }
+    const el = r.current
+    const wasMuted = el.muted
+    el.muted = true
+    void el.play().then(
+      () => {
+        el.pause()
+        el.currentTime = 0
+        el.muted = wasMuted
+      },
+      () => {
+        el.muted = wasMuted
+      },
+    )
+  }
+  primeOne(latchRef, LATCH_SOUND_URL)
+  primeOne(startupRef, STARTUP_SOUND_URL)
 }
 
 type LaptopModelProps = {
   replayKey: number
   reducedMotion: boolean
   soundEnabled: boolean
+  /** When false, demand frameloop stops so WebGL idles off-screen / in background tabs. */
+  runnerActive: boolean
 }
 
-function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProps) {
+function LaptopModel({
+  replayKey,
+  reducedMotion,
+  soundEnabled,
+  runnerActive,
+}: LaptopModelProps) {
   const { scene } = useGLTF(MODEL_URL) as { scene: Group }
   const loadedTexture = useLoader(THREE.TextureLoader, HEADSHOT_URL)
   const { camera, gl, invalidate } = useThree()
+
+  useEffect(() => {
+    if (runnerActive) invalidate()
+  }, [runnerActive, replayKey, invalidate])
 
   const texture = useMemo(() => {
     const t = loadedTexture.clone()
@@ -263,12 +310,15 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
   const tiltTargetRef = useRef(new THREE.Vector2(0, 0))
   const settleStartedRef = useRef(false)
   const settleElapsedMsRef = useRef(0)
-  const prevLidURef = useRef(-1)
   const latchPlayedRef = useRef(false)
   const startupPlayedRef = useRef(false)
   const headshotRevealedRef = useRef(false)
   const latchAudioRef = useRef<HTMLAudioElement | null>(null)
   const startupAudioRef = useRef<HTMLAudioElement | null>(null)
+  const latchSinceLidOpenRef = useRef<number | null>(null)
+  const latchLastTryRef = useRef(0)
+  const startupSinceRevealRef = useRef<number | null>(null)
+  const startupLastTryRef = useRef(0)
 
   const camFraming = useRef({
     ready: false,
@@ -277,6 +327,20 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
     look: new THREE.Vector3(),
   })
   const scratchCamPos = useRef(new THREE.Vector3())
+
+  /** Chrome: `Audio.play()` from rAF is blocked until a user gesture; prime clips once on first tap/key. */
+  useEffect(() => {
+    if (typeof window === 'undefined' || !soundEnabled || reducedMotion) return
+    const ac = new AbortController()
+    const { signal } = ac
+    const onGesture = () => {
+      primeHeroLaptopAudioInGesture(latchAudioRef, startupAudioRef)
+      ac.abort()
+    }
+    window.addEventListener('pointerdown', onGesture, { capture: true, passive: true, signal })
+    window.addEventListener('keydown', onGesture, { capture: true, passive: true, signal })
+    return () => ac.abort()
+  }, [soundEnabled, reducedMotion])
 
   useEffect(() => {
     const canvas = gl.domElement
@@ -370,7 +434,6 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       camera.position.copy(fm.start)
     }
     camera.lookAt(fm.look)
-    camera.updateProjectionMatrix()
     invalidate()
   }, [scene, camera, invalidate, reducedMotion])
 
@@ -380,6 +443,8 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
     const screen = screenRef.current
     const mat = screenMatRef.current
     if (!spin || !tilt || !screen || !mat) return
+
+    if (!runnerActive) return
 
     if (reducedMotion) {
       screen.rotation.x = OPEN_LID_X
@@ -394,7 +459,6 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       if (fmRm.ready && camera instanceof THREE.PerspectiveCamera) {
         camera.position.copy(fmRm.end)
         camera.lookAt(fmRm.look)
-        camera.updateProjectionMatrix()
       }
       return
     }
@@ -413,10 +477,13 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       mat.emissiveIntensity = 0
       settleStartedRef.current = false
       settleElapsedMsRef.current = 0
-      prevLidURef.current = -1
       latchPlayedRef.current = false
       startupPlayedRef.current = false
       headshotRevealedRef.current = false
+      latchSinceLidOpenRef.current = null
+      latchLastTryRef.current = 0
+      startupSinceRevealRef.current = null
+      startupLastTryRef.current = 0
       const boot = getBootScreen()
       mat.map = boot.texture
       mat.emissiveMap = boot.texture
@@ -427,7 +494,6 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       if (fmReplay.ready && camera instanceof THREE.PerspectiveCamera) {
         camera.position.copy(fmReplay.start)
         camera.lookAt(fmReplay.look)
-        camera.updateProjectionMatrix()
       }
     }
 
@@ -444,7 +510,6 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
         camera.position.copy(scratchCamPos.current)
       }
       camera.lookAt(fm.look)
-      camera.updateProjectionMatrix()
     }
 
     // Spin: 0 → 4π over first SPIN_END_T of timeline
@@ -475,17 +540,42 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
     }
     screen.rotation.x = baseLidX + settleOffset
 
-    // Latch once when lid first leaves closed (lidU: 0 → >0)
-    if (soundEnabled && prevLidURef.current <= 0 && lidU > 0 && !latchPlayedRef.current) {
-      latchPlayedRef.current = true
-      playCachedAudio(latchAudioRef, LATCH_SOUND_URL)
+    if (lidU <= 0) {
+      latchSinceLidOpenRef.current = null
+    } else if (latchSinceLidOpenRef.current === null) {
+      latchSinceLidOpenRef.current = performance.now()
     }
-    prevLidURef.current = lidU
 
-    // Startup when emissive / screen “lights up” (same timeline as texture feeling active)
+    if (soundEnabled && lidU > 0 && !latchPlayedRef.current) {
+      const now = performance.now()
+      const since = latchSinceLidOpenRef.current
+      if (since !== null && now - since < SFX_RETRY_WINDOW_MS) {
+        if (latchLastTryRef.current === 0 || now - latchLastTryRef.current >= SFX_RETRY_MS) {
+          latchLastTryRef.current = now
+          void playCachedAudio(latchAudioRef, LATCH_SOUND_URL).then(() => {
+            latchPlayedRef.current = true
+          })
+        }
+      }
+    }
+
+    if (t < REVEAL_START_T) {
+      startupSinceRevealRef.current = null
+    } else if (startupSinceRevealRef.current === null) {
+      startupSinceRevealRef.current = performance.now()
+    }
+
     if (soundEnabled && t >= REVEAL_START_T && !startupPlayedRef.current) {
-      startupPlayedRef.current = true
-      playCachedAudio(startupAudioRef, STARTUP_SOUND_URL)
+      const now = performance.now()
+      const since = startupSinceRevealRef.current
+      if (since !== null && now - since < SFX_RETRY_WINDOW_MS) {
+        if (startupLastTryRef.current === 0 || now - startupLastTryRef.current >= SFX_RETRY_MS) {
+          startupLastTryRef.current = now
+          void playCachedAudio(startupAudioRef, STARTUP_SOUND_URL).then(() => {
+            startupPlayedRef.current = true
+          })
+        }
+      }
     }
 
     // Pink boot loading bar on canvas texture; swap to headshot at reveal
@@ -533,12 +623,13 @@ function LaptopModel({ replayKey, reducedMotion, soundEnabled }: LaptopModelProp
       const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
       tilt.rotation.x += (tiltTargetRef.current.y - tilt.rotation.x) * k
       tilt.rotation.y += (tiltTargetRef.current.x - tilt.rotation.y) * k
-      invalidate()
     } else {
       const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
       tilt.rotation.x += (0 - tilt.rotation.x) * k
       tilt.rotation.y += (0 - tilt.rotation.y) * k
     }
+
+    if (runnerActive) invalidate()
   })
 
   // First mount + reduced-motion toggle: lid / emissive before first useFrame.
@@ -583,12 +674,14 @@ export type HeroLaptopSceneProps = {
   replayKey: number
   reducedMotion: boolean
   soundEnabled: boolean
+  runnerActive: boolean
 }
 
 export default function HeroLaptopScene({
   replayKey,
   reducedMotion,
   soundEnabled,
+  runnerActive,
 }: HeroLaptopSceneProps) {
   return (
     <Canvas
@@ -596,12 +689,17 @@ export default function HeroLaptopScene({
       dpr={[1, 2]}
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.25, 6], fov: 38, near: 0.01, far: 200 }}
-      frameloop="always"
+      frameloop="demand"
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
       <directionalLight position={[-3, 2, -2]} intensity={0.25} />
-      <LaptopModel replayKey={replayKey} reducedMotion={reducedMotion} soundEnabled={soundEnabled} />
+      <LaptopModel
+        replayKey={replayKey}
+        reducedMotion={reducedMotion}
+        soundEnabled={soundEnabled}
+        runnerActive={runnerActive}
+      />
     </Canvas>
   )
 }
