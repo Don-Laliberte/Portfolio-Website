@@ -16,7 +16,7 @@ export function ResumeOnePager({
   const resume = RESUME_ONE_PAGER
 
   return (
-    <section className={styles.wrap}>
+    <section className={`${styles.wrap} ${embedded ? styles.wrapEmbedded : ''}`}>
       {showActions ? (
         <div className={styles.actions} aria-label="Resume actions">
           <Link href="/#resume" className={`${styles.btn} ${styles.btnSecondary}`}>

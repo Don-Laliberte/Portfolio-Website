@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { Navbar } from './Navbar'
 import { CornerBrackets } from '@/components/decor/CornerBrackets'
 import { ScanLine } from '@/components/decor/ScanLine'
+import { FloatingSpritesBackground } from '@/features/decor/FloatingSpritesBackground'
 
 interface MainLayoutProps {
   children: React.ReactNode
@@ -29,6 +30,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <>
+      <FloatingSpritesBackground />
       <CornerBrackets />
       <ScanLine />
       <main className="relative">

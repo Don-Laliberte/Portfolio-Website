@@ -5,6 +5,15 @@
   padding: 0.25rem;
 }
 
+/* Embedded variant lives inside a CyberPanel that already sets the column
+ * width via its parent section. Drop the 920px cap so the resume aligns
+ * flush with surrounding controls (e.g. the Download PDF button) instead of
+ * sitting in a narrower centered well. */
+.wrap.wrapEmbedded {
+  max-width: none;
+  padding: 0;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;
