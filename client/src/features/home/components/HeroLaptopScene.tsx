@@ -343,6 +343,7 @@ function LaptopModel({
     look: new THREE.Vector3(),
   })
   const scratchCamPos = useRef(new THREE.Vector3())
+  const frameCountRef = useRef(0)
 
   /** Chrome: `Audio.play()` from rAF is blocked until a user gesture; prime clips once on first tap/key. */
   useEffect(() => {
@@ -413,12 +414,20 @@ function LaptopModel({
     spin.position.set(0, 0, 0)
 
     const box = new THREE.Box3().setFromObject(scene)
-    if (box.isEmpty()) return
+    if (box.isEmpty()) {
+      console.warn('[HeroLaptopScene] scene bounding box empty — model may have no visible meshes')
+      return
+    }
 
     const center = new THREE.Vector3()
     const size = new THREE.Vector3()
     box.getCenter(center)
     box.getSize(size)
+
+    console.info('[HeroLaptopScene] scene bounds', {
+      center: [+center.x.toFixed(3), +center.y.toFixed(3), +center.z.toFixed(3)],
+      size: [+size.x.toFixed(3), +size.y.toFixed(3), +size.z.toFixed(3)],
+    })
 
     const maxDim = Math.max(size.x, size.y, size.z)
     const margin = CAMERA_FIT_MARGIN
@@ -450,6 +459,15 @@ function LaptopModel({
       camera.position.copy(fm.start)
     }
     camera.lookAt(fm.look)
+    console.info('[HeroLaptopScene] camera framed', {
+      pos: [
+        +camera.position.x.toFixed(3),
+        +camera.position.y.toFixed(3),
+        +camera.position.z.toFixed(3),
+      ],
+      look: [+fm.look.x.toFixed(3), +fm.look.y.toFixed(3), +fm.look.z.toFixed(3)],
+      fov: camera.fov,
+    })
     invalidate()
   }, [scene, camera, invalidate, reducedMotion])
 
@@ -458,7 +476,22 @@ function LaptopModel({
     const tilt = tiltRef.current
     const screen = screenRef.current
     const mat = screenMatRef.current
-    if (!spin || !tilt || !screen || !mat) return
+    if (!spin || !tilt || !screen || !mat) {
+      // Log the first time we hit this guard so we can tell whether refs are
+      // missing in prod (vs. useFrame never firing at all).
+      if (frameCountRef.current === 0) {
+        console.warn('[HeroLaptopScene] useFrame: refs not ready', {
+          spin: !!spin, tilt: !!tilt, screen: !!screen, mat: !!mat,
+        })
+        frameCountRef.current = -1 // sentinel: logged the warning
+      }
+      return
+    }
+
+    if (frameCountRef.current <= 0) {
+      console.info('[HeroLaptopScene] useFrame: first frame drawing', { runnerActive })
+    }
+    frameCountRef.current += 1
 
     if (!runnerActive) return
 
