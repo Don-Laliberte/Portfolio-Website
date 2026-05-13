@@ -73,7 +73,7 @@ export function HeroLaptop() {
           leftViewRef.current = false
         }
       },
-      { threshold: 0.4 },
+      { threshold: 0.1 },
     )
 
     io.observe(el)

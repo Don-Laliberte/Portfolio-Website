@@ -255,6 +255,12 @@ function LaptopModel({
   const loadedTexture = useLoader(THREE.TextureLoader, HEADSHOT_URL)
   const { camera, gl, invalidate } = useThree()
 
+  // Always request one paint when the scene mounts/replays so demand-frameloop
+  // can show a first frame even if IntersectionObserver state arrives late.
+  useEffect(() => {
+    invalidate()
+  }, [invalidate, replayKey])
+
   useEffect(() => {
     if (runnerActive) invalidate()
   }, [runnerActive, replayKey, invalidate])
