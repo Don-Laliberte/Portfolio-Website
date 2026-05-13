@@ -8,7 +8,11 @@ const PNG_URLS = {
   handheld: '/sprites/pink-handheld.png',
   bunny: '/sprites/bunny.png',
   heart: '/sprites/heart.png',
+  heartBlue: '/sprites/heart-blue.png',
+  bobaPink: '/sprites/boba-pink.png',
+  bobaBlue: '/sprites/boba-blue.png',
   note: '/sprites/music-note.png',
+  noteBlue: '/sprites/music-note-blue.png',
   head: '/sprites/nanashi-head.png',
   irl: '/sprites/don-irl.png',
   job: '/sprites/job-application.png',
@@ -17,7 +21,18 @@ const PNG_URLS = {
 type TexKey = keyof typeof PNG_URLS
 type BaseTexKey = Exclude<TexKey, 'job'>
 
-const BASE_KEYS: BaseTexKey[] = ['handheld', 'bunny', 'heart', 'note', 'head', 'irl']
+const BASE_KEYS: BaseTexKey[] = [
+  'handheld',
+  'bunny',
+  'heart',
+  'heartBlue',
+  'bobaPink',
+  'bobaBlue',
+  'note',
+  'noteBlue',
+  'head',
+  'irl',
+]
 
 type MapsState = Record<BaseTexKey, THREE.CanvasTexture>
 
@@ -39,7 +54,11 @@ const PER_KEY_SIZE_BIAS: Record<TexKey, number> = {
   handheld: 1.0,
   bunny: 1.0,
   heart: 0.95,
+  heartBlue: 0.95,
+  bobaPink: 1.05,
+  bobaBlue: 1.05,
   note: 1.0,
+  noteBlue: 1.0,
   head: 0.92,
   irl: 1.05,
   job: 1.0,
@@ -267,21 +286,47 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
 
     ;(async () => {
       try {
-        const [handheld, bunny, heart, note, head, irl] = await Promise.all([
+        const [
+          handheld,
+          bunny,
+          heart,
+          heartBlue,
+          bobaPink,
+          bobaBlue,
+          note,
+          noteBlue,
+          head,
+          irl,
+        ] = await Promise.all([
           loadKeyedPng(PNG_URLS.handheld),
           loadKeyedPng(PNG_URLS.bunny),
           loadKeyedPng(PNG_URLS.heart),
+          loadKeyedPng(PNG_URLS.heartBlue),
+          loadKeyedPng(PNG_URLS.bobaPink),
+          loadKeyedPng(PNG_URLS.bobaBlue),
           loadKeyedPng(PNG_URLS.note),
+          loadKeyedPng(PNG_URLS.noteBlue),
           loadKeyedPng(PNG_URLS.head),
           loadKeyedPng(PNG_URLS.irl),
         ])
         if (cancelled) {
-          ;[handheld, bunny, heart, note, head, irl].forEach((t) => t.dispose())
+          ;[
+            handheld,
+            bunny,
+            heart,
+            heartBlue,
+            bobaPink,
+            bobaBlue,
+            note,
+            noteBlue,
+            head,
+            irl,
+          ].forEach((t) => t.dispose())
           return
         }
-        local.push(handheld, bunny, heart, note, head, irl)
+        local.push(handheld, bunny, heart, heartBlue, bobaPink, bobaBlue, note, noteBlue, head, irl)
         disposablesRef.current.push(...local)
-        setMaps({ handheld, bunny, heart, note, head, irl })
+        setMaps({ handheld, bunny, heart, heartBlue, bobaPink, bobaBlue, note, noteBlue, head, irl })
       } catch (e) {
         console.error('[FloatingSpritesScene] base texture load failed', e)
       }
