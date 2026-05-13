@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   description: defaultDescription,
   applicationName: defaultTitle,
   authors: [{ name: 'Don Laliberte', url: SITE_URL }],
+  icons: {
+    icon: '/sprites/nanashi-head.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
