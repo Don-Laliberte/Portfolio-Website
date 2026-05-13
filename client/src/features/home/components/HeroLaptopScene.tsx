@@ -695,7 +695,7 @@ export default function HeroLaptopScene({
       dpr={[1, 2]}
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.25, 6], fov: 38, near: 0.01, far: 200 }}
-      frameloop="demand"
+      frameloop={runnerActive ? 'always' : 'never'}
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />

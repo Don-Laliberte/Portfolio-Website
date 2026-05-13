@@ -34,7 +34,9 @@ export function HeroLaptop() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [replayKey, setReplayKey] = useState(0)
   const [reducedMotion, setReducedMotion] = useState(false)
-  const [inView, setInView] = useState(false)
+  // Seed true so the laptop renders on first paint even if IntersectionObserver
+  // hasn't fired yet (avoids a blank canvas on slow / production-only timing).
+  const [inView, setInView] = useState(true)
   const [pageVisible, setPageVisible] = useState(
     () => typeof document !== 'undefined' && document.visibilityState === 'visible',
   )
