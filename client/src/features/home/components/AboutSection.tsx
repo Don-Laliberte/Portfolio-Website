@@ -1,8 +1,9 @@
 'use client'
 
-import { m } from 'framer-motion'
-import type { ReactNode } from 'react'
+import { m, useInView, useReducedMotion } from 'framer-motion'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { SectionHeading } from '@/components/shared/SectionHeading'
+import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -17,17 +18,17 @@ const blocks: Array<{ title: string; body: string }> = [
   {
     title: 'The short version',
     body:
-      'Full-stack developer, designer-by-necessity, perpetual tinkerer. I build things I want to exist and occasionally ship them.',
+      'Full-stack developer, designer-by-necessity, perpetual tinkerer. I build things I want to exist because I believe in their value. I do it out of love for creating.',
   },
   {
     title: 'What I care about',
     body:
-      'Tools that respect their users, interfaces that feel alive, and code you can actually read a year later. I prefer doing the hard thing twice over the wrong thing once.',
+      'I like self-improvement and pushing the quality bar in this industry. I build tools with users in mind, while still keeping my whimsy. Takeaway, I\'m a "measure twice, cut once" kind of person.',
   },
   {
-    title: 'Outside the editor',
+    title: 'Outside the grind',
     body:
-      'Music, esports, club organizing, and pretending my dark-mode habit is a lifestyle. I help run the CS community at the University of Calgary.',
+      'Music, esports, organizing communities, and building in my own style. I bring a distinct mix of creativity, leadership, and technical depth to the CS community at UCalgary.',
   },
 ]
 
@@ -38,9 +39,8 @@ export function AboutSection() {
         eyebrow="Who am I?"
         title="Don"
         accent="Laliberte"
-        subtitle="Computer Science student at the University of Calgary. I work across the stack and ship software that people actually use."
+        subtitle="Computer Science student at the University of Calgary. I'm passionate about our growing community and creating the impact I want to see with my work."
       />
-
       <m.div
         initial="hidden"
         whileInView="visible"
@@ -68,8 +68,35 @@ function ContentBlock({
   index: number
   children: ReactNode
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const inView = useInView(ref, { once: true, amount: 0.25 })
+  const prefersReduced = useReducedMotion() ?? false
+  const body = typeof children === 'string' ? children : ''
+  const [lineIndex, setLineIndex] = useState(0)
+
+  useEffect(() => {
+    if (!inView) return
+    if (prefersReduced) setLineIndex(2)
+  }, [inView, prefersReduced])
+
+  const lineState = useCallback(
+    (i: number): LineState => {
+      if (!inView) return 'idle'
+      if (prefersReduced) return 'done'
+      if (i < lineIndex) return 'done'
+      if (i === lineIndex) return 'running'
+      return 'idle'
+    },
+    [inView, lineIndex, prefersReduced],
+  )
+
+  const onLineDone = useCallback(() => {
+    setLineIndex((j) => Math.min(j + 1, 2))
+  }, [])
+
   return (
     <div
+      ref={ref}
       className="relative overflow-hidden pl-5"
       style={{ borderLeft: '2px solid rgb(var(--accent) / 0.4)' }}
     >
@@ -84,9 +111,27 @@ function ContentBlock({
         className="mb-2 font-tech text-xs font-bold uppercase tracking-[0.24em]"
         style={{ color: 'rgb(var(--accent))' }}
       >
-        {title}
+        <TypewriterLine
+          segments={[{ text: title, final: 'accentToken' }]}
+          state={lineState(0)}
+          onComplete={onLineDone}
+          charIntervalMs={20}
+          maxLineDurationMs={1100}
+          settleMs={300}
+          showCursor={lineIndex === 0}
+        />
       </h3>
-      <p className="text-base leading-relaxed text-muted">{children}</p>
+      <p className="text-base leading-relaxed text-muted">
+        <TypewriterLine
+          segments={[{ text: body, final: 'muted' }]}
+          state={lineState(1)}
+          onComplete={onLineDone}
+          charIntervalMs={11}
+          maxLineDurationMs={2600}
+          settleMs={340}
+          showCursor={lineIndex === 1}
+        />
+      </p>
     </div>
   )
 }

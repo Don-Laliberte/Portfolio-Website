@@ -1,4 +1,5 @@
-import type { ElementType, HTMLAttributes, ReactNode } from 'react'
+import { createElement } from 'react'
+import type { HTMLAttributes, ReactNode } from 'react'
 
 type PanelTag = 'div' | 'section' | 'article' | 'aside' | 'a' | 'button'
 
@@ -17,7 +18,7 @@ export function CyberPanel({
   children,
   ...rest
 }: CyberPanelProps) {
-  const Tag = (as ?? 'div') as ElementType
+  const Tag = as ?? 'div'
   const classes = [
     'cyber-panel',
     stripe ? 'cyber-panel-stripe' : '',
@@ -27,9 +28,5 @@ export function CyberPanel({
     .filter(Boolean)
     .join(' ')
 
-  return (
-    <Tag className={classes} {...rest}>
-      {children}
-    </Tag>
-  )
+  return createElement(Tag, { className: classes, ...rest }, children)
 }

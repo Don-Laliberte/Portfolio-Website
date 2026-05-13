@@ -8,11 +8,10 @@
 
 /* ── Design tokens (Tailwind v4 @theme block exposes them as utilities) ── */
 @theme {
+  /* Display headings use Pixelify Sans. Body + UI/tech accents use Jersey 25. */
   --font-display: var(--font-display-loaded, 'Pixelify Sans'), ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-body-loaded, 'VT323'), ui-monospace, 'Courier New', monospace;
-  /* Unified UI font: VT323 everywhere (buttons, nav, chips, eyebrows) — keeps
-   * the pixel-terminal aesthetic consistent with headings + body. */
-  --font-tech: var(--font-body-loaded, 'VT323'), ui-monospace, 'Courier New', monospace;
+  --font-body: var(--font-jersey-loaded, 'Jersey 25'), ui-sans-serif, system-ui, sans-serif;
+  --font-tech: var(--font-jersey-loaded, 'Jersey 25'), ui-sans-serif, system-ui, sans-serif;
 
   /* Palette — used by utility classes (bg-pink, text-accent, etc.) */
   --color-pink: #e05aaa;
@@ -309,22 +308,18 @@ body.modal-open .scroll-container {
   }
 }
 
-/* Theme toggle button: same visual language as .btn-accent but compact, with
- * a pulse-style glow on hover to match other accent controls. */
+/* Theme toggle: no panel — color/hover from ThemeToggleButton utilities. */
 .theme-toggle-btn {
-  border: 1px solid rgb(var(--border) / 0.55);
-  background: rgb(var(--accent) / 0.15);
-  color: rgb(var(--accent-bright));
-  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 @media (hover: hover) {
   .theme-toggle-btn:hover,
   .theme-toggle-btn:focus-visible {
-    background: rgb(var(--accent) / 0.28);
-    border-color: rgb(var(--accent-bright) / 0.75);
-    color: rgb(var(--text));
-    box-shadow: 0 0 18px rgb(var(--glow) / 0.35);
+    background: transparent;
+    box-shadow: none;
   }
 }
 
@@ -529,6 +524,27 @@ body.modal-open .scroll-container {
 .animated-logo svg {
   width: 100%;
   height: 100%;
+}
+
+/*
+ * Stable compositing layer for work-card logos.
+ *
+ * Safari re-rasterises <img>-embedded SVGs whenever their ancestor enters or
+ * leaves a GPU-composited layer — which our .cyber-panel-hover lift does on
+ * every hover. In that re-rasterisation pass Safari re-runs font matching,
+ * and any SVG <text> with a font the OS doesn't have (e.g. Montserrat in the
+ * CalgaryHacks logo) can flip to a completely different fallback mid-hover.
+ *
+ * Forcing the logo into its own permanent compositing layer (translateZ(0) +
+ * backface-visibility) keeps rasterisation stable through the hover cycle.
+ * This is a band-aid; the real fix for any SVG using <text> is to convert
+ * the text to paths in Inkscape (Path → Object to Path) before exporting.
+ */
+.work-logo {
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
 }
 
 /* Safe-area padding helpers for fixed elements on iOS notch / Dynamic Island. */

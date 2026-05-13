@@ -3,22 +3,18 @@
 import { m } from 'framer-motion'
 import { CyberPanel } from '@/components/shared/CyberPanel'
 import { SectionHeading } from '@/components/shared/SectionHeading'
-import { useMediaQuery } from '@/lib/use-media-query'
+import { ResumeOnePager } from './ResumeOnePager'
 
 const RESUME_PATH = '/documents/Don-Laliberte-Resume.pdf'
 
 export function ResumeSection() {
-  // iOS Safari refuses to inline-render <iframe src="*.pdf"> — swap to a
-  // call-to-action button on narrow viewports so users never see a blank box.
-  const isMobile = useMediaQuery('(max-width: 767px)')
-
   return (
     <div className="flex flex-col">
       <SectionHeading
         eyebrow="Documentation"
         title="The"
         accent="Resume"
-        subtitle="Full-stack developer. Full document below — download it, open it in a new tab, or read along."
+        subtitle="A SWE one-pager is embedded below for your ease of viewing. Check it out, and if you'd like you can download my official resume as a PDF as well!"
       />
 
       <m.div
@@ -36,16 +32,6 @@ export function ResumeSection() {
           <DownloadIcon />
           Download PDF
         </a>
-        <a
-          href={RESUME_PATH}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn-accent"
-          style={{ background: 'transparent' }}
-        >
-          <ExternalIcon />
-          Open in new tab
-        </a>
       </m.div>
 
       <m.div
@@ -56,34 +42,7 @@ export function ResumeSection() {
         className="mt-8"
       >
         <CyberPanel className="overflow-hidden rounded-sm">
-          {isMobile ? (
-            <div className="flex min-h-[260px] flex-col items-center justify-center gap-3 p-8 text-center">
-              <p className="font-tech text-sm uppercase tracking-[0.22em]" style={{ color: 'rgb(var(--accent))' }}>
-                Mobile preview not supported
-              </p>
-              <p className="max-w-xs text-base leading-relaxed text-muted">
-                iOS and mobile browsers can&apos;t inline-render PDFs. Use one
-                of the buttons above to open or download the resume.
-              </p>
-              <a
-                href={RESUME_PATH}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-accent mt-2"
-              >
-                <ExternalIcon />
-                Open Resume
-              </a>
-            </div>
-          ) : (
-            <iframe
-              src={`${RESUME_PATH}#view=FitH`}
-              title="Don Laliberte Resume"
-              className="block h-[68vh] w-full border-0"
-              style={{ background: 'rgb(var(--bg-panel) / 0.6)' }}
-              loading="lazy"
-            />
-          )}
+          <ResumeOnePager embedded />
         </CyberPanel>
       </m.div>
     </div>
@@ -100,12 +59,3 @@ function DownloadIcon() {
   )
 }
 
-function ExternalIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  )
-}
