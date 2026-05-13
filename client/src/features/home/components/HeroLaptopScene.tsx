@@ -2,7 +2,17 @@
 
 import { Canvas, useFrame, useLoader, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
-import { useEffect, useLayoutEffect, useMemo, useRef, useCallback, type MutableRefObject } from 'react'
+import {
+  Component,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useCallback,
+  type MutableRefObject,
+  type ReactNode,
+} from 'react'
 import * as THREE from 'three'
 import type { Group, Object3D } from 'three'
 
@@ -683,12 +693,49 @@ export type HeroLaptopSceneProps = {
   runnerActive: boolean
 }
 
+/**
+ * Without an inner Suspense, anything that suspends inside `<Canvas>` (e.g.
+ * `useGLTF` / `useLoader`) leaves the scene tree silently empty — the canvas
+ * mounts, clears every frame, and never renders a single object. Catching here
+ * gives us a logged error path and prevents the entire scene from going dark
+ * if resource loading throws in production.
+ */
+class HeroLaptopErrorBoundary extends Component<
+  { children: ReactNode },
+  { error: unknown }
+> {
+  state = { error: null as unknown }
+  static getDerivedStateFromError(error: unknown) {
+    return { error }
+  }
+  componentDidCatch(error: unknown) {
+    if (typeof window !== 'undefined') {
+      console.error('[HeroLaptopScene] render error:', error)
+    }
+  }
+  render() {
+    if (this.state.error) return null
+    return this.props.children
+  }
+}
+
+function SceneLoadLogger() {
+  useEffect(() => {
+    console.info('[HeroLaptopScene] LaptopModel mounted (resources resolved)')
+  }, [])
+  return null
+}
+
 export default function HeroLaptopScene({
   replayKey,
   reducedMotion,
   soundEnabled,
   runnerActive,
 }: HeroLaptopSceneProps) {
+  useEffect(() => {
+    console.info('[HeroLaptopScene] Canvas wrapper mounted', { runnerActive })
+  }, [runnerActive])
+
   return (
     <Canvas
       className="h-full w-full touch-none"
@@ -696,16 +743,27 @@ export default function HeroLaptopScene({
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.25, 6], fov: 38, near: 0.01, far: 200 }}
       frameloop={runnerActive ? 'always' : 'never'}
+      onCreated={({ gl }) => {
+        console.info('[HeroLaptopScene] Canvas onCreated', {
+          drawingBufferWidth: gl.domElement.width,
+          drawingBufferHeight: gl.domElement.height,
+        })
+      }}
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
       <directionalLight position={[-3, 2, -2]} intensity={0.25} />
-      <LaptopModel
-        replayKey={replayKey}
-        reducedMotion={reducedMotion}
-        soundEnabled={soundEnabled}
-        runnerActive={runnerActive}
-      />
+      <HeroLaptopErrorBoundary>
+        <Suspense fallback={null}>
+          <SceneLoadLogger />
+          <LaptopModel
+            replayKey={replayKey}
+            reducedMotion={reducedMotion}
+            soundEnabled={soundEnabled}
+            runnerActive={runnerActive}
+          />
+        </Suspense>
+      </HeroLaptopErrorBoundary>
     </Canvas>
   )
 }
