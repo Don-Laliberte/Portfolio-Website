@@ -75,8 +75,15 @@ const CAMERA_FIT_MARGIN = 1.06
 /** Lens height above bbox center (× maxDim) — higher sees more of the laptop top. */
 const CAMERA_HEIGHT_FRAC = 0.6
 
-/** Look slightly below bbox center (× size.y) — shifts framing so the lid isn’t clipped. */
-const CAMERA_LOOK_DOWN_FRAC = -2.5
+/**
+ * Look offset relative to bbox center, expressed as a fraction of size.y.
+ * Applied as `lookTarget.y -= size.y * CAMERA_LOOK_DOWN_FRAC`, so a small
+ * POSITIVE value moves the look point slightly below the model's center,
+ * which raises the laptop in the frame and prevents the lid from clipping
+ * at the top of the canvas. Negative values aim the camera ABOVE the model
+ * entirely and produce a blank canvas — don't do that.
+ */
+const CAMERA_LOOK_DOWN_FRAC = 0.05
 
 /**
  * During spin, camera sits further out on the same view ray; eases to the final
@@ -343,7 +350,6 @@ function LaptopModel({
     look: new THREE.Vector3(),
   })
   const scratchCamPos = useRef(new THREE.Vector3())
-  const frameCountRef = useRef(0)
 
   /** Chrome: `Audio.play()` from rAF is blocked until a user gesture; prime clips once on first tap/key. */
   useEffect(() => {
@@ -414,20 +420,12 @@ function LaptopModel({
     spin.position.set(0, 0, 0)
 
     const box = new THREE.Box3().setFromObject(scene)
-    if (box.isEmpty()) {
-      console.warn('[HeroLaptopScene] scene bounding box empty — model may have no visible meshes')
-      return
-    }
+    if (box.isEmpty()) return
 
     const center = new THREE.Vector3()
     const size = new THREE.Vector3()
     box.getCenter(center)
     box.getSize(size)
-
-    console.info('[HeroLaptopScene] scene bounds', {
-      center: [+center.x.toFixed(3), +center.y.toFixed(3), +center.z.toFixed(3)],
-      size: [+size.x.toFixed(3), +size.y.toFixed(3), +size.z.toFixed(3)],
-    })
 
     const maxDim = Math.max(size.x, size.y, size.z)
     const margin = CAMERA_FIT_MARGIN
@@ -459,15 +457,6 @@ function LaptopModel({
       camera.position.copy(fm.start)
     }
     camera.lookAt(fm.look)
-    console.info('[HeroLaptopScene] camera framed', {
-      pos: [
-        +camera.position.x.toFixed(3),
-        +camera.position.y.toFixed(3),
-        +camera.position.z.toFixed(3),
-      ],
-      look: [+fm.look.x.toFixed(3), +fm.look.y.toFixed(3), +fm.look.z.toFixed(3)],
-      fov: camera.fov,
-    })
     invalidate()
   }, [scene, camera, invalidate, reducedMotion])
 
@@ -476,22 +465,7 @@ function LaptopModel({
     const tilt = tiltRef.current
     const screen = screenRef.current
     const mat = screenMatRef.current
-    if (!spin || !tilt || !screen || !mat) {
-      // Log the first time we hit this guard so we can tell whether refs are
-      // missing in prod (vs. useFrame never firing at all).
-      if (frameCountRef.current === 0) {
-        console.warn('[HeroLaptopScene] useFrame: refs not ready', {
-          spin: !!spin, tilt: !!tilt, screen: !!screen, mat: !!mat,
-        })
-        frameCountRef.current = -1 // sentinel: logged the warning
-      }
-      return
-    }
-
-    if (frameCountRef.current <= 0) {
-      console.info('[HeroLaptopScene] useFrame: first frame drawing', { runnerActive })
-    }
-    frameCountRef.current += 1
+    if (!spin || !tilt || !screen || !mat) return
 
     if (!runnerActive) return
 
@@ -752,23 +726,12 @@ class HeroLaptopErrorBoundary extends Component<
   }
 }
 
-function SceneLoadLogger() {
-  useEffect(() => {
-    console.info('[HeroLaptopScene] LaptopModel mounted (resources resolved)')
-  }, [])
-  return null
-}
-
 export default function HeroLaptopScene({
   replayKey,
   reducedMotion,
   soundEnabled,
   runnerActive,
 }: HeroLaptopSceneProps) {
-  useEffect(() => {
-    console.info('[HeroLaptopScene] Canvas wrapper mounted', { runnerActive })
-  }, [runnerActive])
-
   return (
     <Canvas
       className="h-full w-full touch-none"
@@ -776,19 +739,12 @@ export default function HeroLaptopScene({
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.25, 6], fov: 38, near: 0.01, far: 200 }}
       frameloop={runnerActive ? 'always' : 'never'}
-      onCreated={({ gl }) => {
-        console.info('[HeroLaptopScene] Canvas onCreated', {
-          drawingBufferWidth: gl.domElement.width,
-          drawingBufferHeight: gl.domElement.height,
-        })
-      }}
     >
       <ambientLight intensity={0.55} />
       <directionalLight position={[4, 6, 5]} intensity={1.1} />
       <directionalLight position={[-3, 2, -2]} intensity={0.25} />
       <HeroLaptopErrorBoundary>
         <Suspense fallback={null}>
-          <SceneLoadLogger />
           <LaptopModel
             replayKey={replayKey}
             reducedMotion={reducedMotion}
