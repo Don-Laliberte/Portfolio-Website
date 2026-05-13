@@ -87,7 +87,7 @@ export function HeroSection() {
         <m.span
           variants={fadeUp}
           custom={0.4}
-          className="eyebrow max-w-full max-xl:whitespace-nowrap xl:whitespace-normal xl:max-w-[min(100%,36rem)]"
+          className="eyebrow max-w-full leading-snug xl:max-w-[min(100%,36rem)]"
         >
           <TypewriterLine
             segments={[{ text: EYEBROW, final: 'eyebrow' }]}
