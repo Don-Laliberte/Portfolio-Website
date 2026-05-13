@@ -37,9 +37,10 @@ export function HeroLaptop() {
   // Seed true so the laptop renders on first paint even if IntersectionObserver
   // hasn't fired yet (avoids a blank canvas on slow / production-only timing).
   const [inView, setInView] = useState(true)
-  const [pageVisible, setPageVisible] = useState(
-    () => typeof document !== 'undefined' && document.visibilityState === 'visible',
-  )
+  // Default to true so SSR -> hydration starts with the scene live. The
+  // `visibilitychange` effect below will flip this off if the tab is actually
+  // hidden when the page mounts.
+  const [pageVisible, setPageVisible] = useState(true)
   const leftViewRef = useRef(false)
 
   useEffect(() => {
