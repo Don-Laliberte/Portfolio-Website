@@ -14,6 +14,5 @@ export const ENDORSEMENTS: Endorsement[] = [
   // { id: 'jane-doe', name: 'Jane Doe', url: 'https://janedoe.dev' },
   {id: '0xhckr', name: '0xhckr', url: 'https://0xhckr.dev'},
   {id: 'Essam', name: 'Essam Khawaja', url: 'https://www.essamk.dev'},
-  {id: 'Nova', name: 'Nova Driscol', url: 'https://hypernova.me'},
   {id: 'Adi', name: 'Adi Poluri', url: 'https://adipoluri.tech'},
 ]
