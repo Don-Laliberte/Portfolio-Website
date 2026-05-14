@@ -1,4 +1,5 @@
 export { AboutSection } from './components/AboutSection'
+export { EndorsementsSection } from './components/EndorsementsSection'
 export { HeroSection } from './components/HeroSection'
 export { PostsSection } from './components/PostsSection'
 export { ResumeSection } from './components/ResumeSection'
