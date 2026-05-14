@@ -15,6 +15,9 @@ const PNG_URLS = {
   noteBlue: '/sprites/music-note-blue.png',
   head: '/sprites/nanashi-head.png',
   irl: '/sprites/don-irl.png',
+  laptopPurple: '/sprites/laptop-purple.png',
+  laptopPink: '/sprites/laptop-pink.png',
+  laptopBlue: '/sprites/laptop-blue.png',
   job: '/sprites/job-application.png',
 } as const
 
@@ -32,6 +35,9 @@ const BASE_KEYS: BaseTexKey[] = [
   'noteBlue',
   'head',
   'irl',
+  'laptopPurple',
+  'laptopPink',
+  'laptopBlue',
 ]
 
 type MapsState = Record<BaseTexKey, THREE.CanvasTexture>
@@ -61,6 +67,9 @@ const PER_KEY_SIZE_BIAS: Record<TexKey, number> = {
   noteBlue: 1.0,
   head: 0.92,
   irl: 1.05,
+  laptopPurple: 0.88,
+  laptopPink: 0.88,
+  laptopBlue: 0.88,
   job: 1.0,
 }
 
