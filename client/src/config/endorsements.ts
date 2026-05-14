@@ -13,4 +13,5 @@ export const ENDORSEMENTS: Endorsement[] = [
   // Add entries here, e.g.:
   // { id: 'jane-doe', name: 'Jane Doe', url: 'https://janedoe.dev' },
   {id: '0xhckr', name: '0xhckr', url: 'https://0xhckr.dev'},
+  {id: 'Essam', name: 'Essam Khawaja', url: 'https://www.essamk.dev'},
 ]
