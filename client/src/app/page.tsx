@@ -1,6 +1,7 @@
 import { FullPageSection } from '@/features/layout'
 import {
   AboutSection,
+  EndorsementsSection,
   HeroSection,
   PostsSection,
   ResumeSection,
@@ -49,6 +50,15 @@ export default function HomePage() {
         tintColor="rgb(var(--glow) / 0.1)"
       >
         <SocialsSection />
+      </FullPageSection>
+
+      <FullPageSection
+        id="endorsements"
+        width="wide"
+        align="center"
+        tintColor="rgb(var(--glow-secondary) / 0.15)"
+      >
+        <EndorsementsSection />
       </FullPageSection>
 
       <FullPageSection id="posts" width="wide" align="center">
