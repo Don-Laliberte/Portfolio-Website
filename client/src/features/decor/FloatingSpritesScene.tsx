@@ -306,6 +306,9 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
           noteBlue,
           head,
           irl,
+          laptopPurple,
+          laptopPink,
+          laptopBlue,
         ] = await Promise.all([
           loadKeyedPng(PNG_URLS.handheld),
           loadKeyedPng(PNG_URLS.bunny),
@@ -317,6 +320,9 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
           loadKeyedPng(PNG_URLS.noteBlue),
           loadKeyedPng(PNG_URLS.head),
           loadKeyedPng(PNG_URLS.irl),
+          loadKeyedPng(PNG_URLS.laptopPurple),
+          loadKeyedPng(PNG_URLS.laptopPink),
+          loadKeyedPng(PNG_URLS.laptopBlue),
         ])
         if (cancelled) {
           ;[
@@ -330,12 +336,43 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
             noteBlue,
             head,
             irl,
+            laptopPurple,
+            laptopPink,
+            laptopBlue,
           ].forEach((t) => t.dispose())
           return
         }
-        local.push(handheld, bunny, heart, heartBlue, bobaPink, bobaBlue, note, noteBlue, head, irl)
+        local.push(
+          handheld,
+          bunny,
+          heart,
+          heartBlue,
+          bobaPink,
+          bobaBlue,
+          note,
+          noteBlue,
+          head,
+          irl,
+          laptopPurple,
+          laptopPink,
+          laptopBlue,
+        )
         disposablesRef.current.push(...local)
-        setMaps({ handheld, bunny, heart, heartBlue, bobaPink, bobaBlue, note, noteBlue, head, irl })
+        setMaps({
+          handheld,
+          bunny,
+          heart,
+          heartBlue,
+          bobaPink,
+          bobaBlue,
+          note,
+          noteBlue,
+          head,
+          irl,
+          laptopPurple,
+          laptopPink,
+          laptopBlue,
+        })
       } catch (e) {
         console.error('[FloatingSpritesScene] base texture load failed', e)
       }
