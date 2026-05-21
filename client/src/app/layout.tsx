@@ -7,10 +7,28 @@ import { MotionProvider } from '@/lib/motion-provider'
 import './globals.css'
 
 /** Canonical site origin for absolute URLs (Open Graph, Twitter cards). */
+function toSiteOrigin(value: string | undefined): string | null {
+  const trimmed = value?.trim().replace(/\/+$/, '')
+  if (!trimmed) return null
+
+  const host = trimmed.split(/[/?#]/, 1)[0] ?? ''
+  const localHost = /^(localhost|127\.0\.0\.1|\[::1\])(?::\d+)?$/i.test(host)
+  const withProtocol = /^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)
+    ? trimmed
+    : `${localHost ? 'http' : 'https'}://${trimmed}`
+
+  try {
+    return new URL(withProtocol).origin
+  } catch {
+    return null
+  }
+}
+
 function siteOrigin(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+  const explicit = toSiteOrigin(process.env.NEXT_PUBLIC_SITE_URL)
   if (explicit) return explicit
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`
+  const vercel = toSiteOrigin(process.env.VERCEL_URL)
+  if (vercel) return vercel
   return 'http://localhost:3000'
 }
 
