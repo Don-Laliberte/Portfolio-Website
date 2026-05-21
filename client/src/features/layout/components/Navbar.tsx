@@ -32,43 +32,76 @@ function getContainer(): HTMLElement | null {
 }
 
 /**
- * External-store subscription to the scroll container. We re-compute the
- * active section on every scroll event and snapshot it via DOM reads so
- * React doesn't drive a setState cascade from inside useEffect.
+ * Cached `offsetTop` for each section. Reading `offsetTop` forces a synchronous
+ * layout flush, which is hot when fired per scroll event — especially on
+ * Firefox with mandatory scroll-snap. We refresh the cache once on attach and
+ * on resize, then snapshot the active section from the cached numbers.
+ */
+const offsetCache = new Map<string, number>()
+
+function refreshOffsetCache() {
+  if (typeof document === 'undefined') return
+  for (const id of SECTION_IDS) {
+    const el = document.getElementById(id)
+    if (el) offsetCache.set(id, el.offsetTop)
+  }
+}
+
+/**
+ * External-store subscription to the scroll container. Scroll events are
+ * coalesced through `requestAnimationFrame` so React is notified at most once
+ * per frame regardless of how rapidly the engine fires events.
  */
 function subscribeScroll(onChange: () => void) {
   if (typeof window === 'undefined') return () => undefined
-  const container = getContainer()
-  if (!container) {
-    // Container not mounted yet — retry on next frame until it is.
-    let raf = 0
-    const tick = () => {
-      const c = getContainer()
-      if (c) {
-        c.addEventListener('scroll', onChange, { passive: true })
-        onChange()
-      } else {
-        raf = requestAnimationFrame(tick)
-      }
-    }
-    raf = requestAnimationFrame(tick)
-    return () => {
-      cancelAnimationFrame(raf)
-      getContainer()?.removeEventListener('scroll', onChange)
-    }
+
+  let rafScheduled = false
+  const flush = () => {
+    rafScheduled = false
+    onChange()
   }
-  container.addEventListener('scroll', onChange, { passive: true })
-  return () => container.removeEventListener('scroll', onChange)
+  const onScroll = () => {
+    if (rafScheduled) return
+    rafScheduled = true
+    requestAnimationFrame(flush)
+  }
+  const onResize = () => {
+    refreshOffsetCache()
+    onChange()
+  }
+
+  let containerEl: HTMLElement | null = null
+  let attachRaf = 0
+  const attach = () => {
+    const c = getContainer()
+    if (!c) {
+      attachRaf = requestAnimationFrame(attach)
+      return
+    }
+    containerEl = c
+    refreshOffsetCache()
+    c.addEventListener('scroll', onScroll, { passive: true })
+    onChange()
+  }
+  attach()
+  window.addEventListener('resize', onResize, { passive: true })
+
+  return () => {
+    if (attachRaf) cancelAnimationFrame(attachRaf)
+    containerEl?.removeEventListener('scroll', onScroll)
+    window.removeEventListener('resize', onResize)
+  }
 }
 
 function getActiveSnapshot(): string {
   const container = getContainer()
   if (!container) return SECTION_IDS[0]
+  if (offsetCache.size === 0) refreshOffsetCache()
   const scrollTop = container.scrollTop
   let active: string = SECTION_IDS[0]
   for (const id of SECTION_IDS) {
-    const el = document.getElementById(id)
-    if (el && el.offsetTop <= scrollTop + 140) {
+    const top = offsetCache.get(id)
+    if (top !== undefined && top <= scrollTop + 140) {
       active = id
     }
   }
@@ -134,15 +167,7 @@ export function Navbar() {
   }, [menuOpen])
 
   return (
-    <header
-      className="sticky top-0 z-40 w-full safe-inset-top"
-      style={{
-        background: 'rgb(var(--bg-ink) / 0.78)',
-        WebkitBackdropFilter: 'blur(10px)',
-        backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid rgb(var(--border) / 0.2)',
-      }}
-    >
+    <header className="navbar-glass sticky top-0 z-40 w-full safe-inset-top">
       <div className="mx-auto flex w-full max-w-[1280px] items-center justify-between gap-4 px-4 py-2 md:px-6">
         <Logo onHomeClick={() => scrollToSection('#hero')} />
 
