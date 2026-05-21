@@ -1,7 +1,6 @@
 const Corner = ({ className }: { className: string }) => (
   <div
     className={`pointer-events-none fixed z-10 h-9 w-9 sm:h-[55px] sm:w-[55px] ${className}`}
-    style={{ willChange: 'transform' }}
     aria-hidden
   >
     <div

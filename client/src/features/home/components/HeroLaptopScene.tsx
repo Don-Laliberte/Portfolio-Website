@@ -18,6 +18,10 @@ import type { Group, Object3D } from 'three'
 
 import { pixelifySans } from '@/lib/fonts'
 
+/** Firefox gets 30 Hz idle drift; Chromium/Safari run at full refresh rate. */
+const IS_FIREFOX =
+  typeof navigator !== 'undefined' && navigator.userAgent.includes('Firefox')
+
 const MODEL_URL = '/models/portfolio-laptop.glb'
 /** Replace with a larger export (e.g. 1600–2400px wide) for sharper detail on the 3D screen. */
 const HEADSHOT_URL = '/images/don-headshot.jpg'
@@ -331,6 +335,11 @@ function LaptopModel({
   const replayKeyRef = useRef(replayKey)
   const idleTime = useRef(0)
   const tiltTargetRef = useRef(new THREE.Vector2(0, 0))
+  // Post-intro idle drift + pointer tilt: 30 Hz on Firefox, full rate elsewhere.
+  // Intro animation (`t < 1`) always runs every frame.
+  const idleStepAccumRef = useRef(0)
+  const TARGET_IDLE_STEP_S = IS_FIREFOX ? 1 / 30 : 0
+  const MAX_IDLE_STEP_S = 1 / 30
   const settleStartedRef = useRef(false)
   const settleElapsedMsRef = useRef(0)
   const latchPlayedRef = useRef(false)
@@ -638,15 +647,23 @@ function LaptopModel({
     if (t >= 1) {
       mat.emissive.copy(emissiveWhite)
       mat.emissiveIntensity = REVEAL_END_INTENSITY
-      idleTime.current += delta
-      spin.rotation.y += delta * IDLE_YAW_DRIFT
-      spin.rotation.x = Math.sin(idleTime.current * IDLE_PITCH_FREQ) * IDLE_PITCH_AMP
-      spin.rotation.z = Math.sin(idleTime.current * IDLE_ROLL_FREQ + 1.2) * IDLE_ROLL_AMP
 
-      const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
-      tilt.rotation.x += (tiltTargetRef.current.y - tilt.rotation.x) * k
-      tilt.rotation.y += (tiltTargetRef.current.x - tilt.rotation.y) * k
+      idleStepAccumRef.current += delta
+      if (idleStepAccumRef.current >= TARGET_IDLE_STEP_S) {
+        const stepDelta = Math.min(idleStepAccumRef.current, MAX_IDLE_STEP_S)
+        idleStepAccumRef.current = 0
+
+        idleTime.current += stepDelta
+        spin.rotation.y += stepDelta * IDLE_YAW_DRIFT
+        spin.rotation.x = Math.sin(idleTime.current * IDLE_PITCH_FREQ) * IDLE_PITCH_AMP
+        spin.rotation.z = Math.sin(idleTime.current * IDLE_ROLL_FREQ + 1.2) * IDLE_ROLL_AMP
+
+        const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * stepDelta)
+        tilt.rotation.x += (tiltTargetRef.current.y - tilt.rotation.x) * k
+        tilt.rotation.y += (tiltTargetRef.current.x - tilt.rotation.y) * k
+      }
     } else {
+      idleStepAccumRef.current = 0
       const k = 1 - Math.exp(-POINTER_TILT_SMOOTH * delta)
       tilt.rotation.x += (0 - tilt.rotation.x) * k
       tilt.rotation.y += (0 - tilt.rotation.y) * k
@@ -735,7 +752,12 @@ export default function HeroLaptopScene({
   return (
     <Canvas
       className="h-full w-full touch-none"
-      dpr={[1, 2]}
+      // Cap DPR at 1.5 to match the sprite background tier. On 2x+ retina
+      // displays this is a barely-perceptible quality drop on the laptop edges
+      // but a meaningful pixel-fill saving — antialias stays on so the silhouette
+      // still reads cleanly. Firefox sees the biggest gain (its WebGL backend
+      // is more sensitive to high-DPR overdraw), but every engine benefits.
+      dpr={[1, 1.5]}
       gl={{ alpha: true, antialias: true }}
       camera={{ position: [0, 0.25, 6], fov: 38, near: 0.01, far: 200 }}
       frameloop={runnerActive ? 'always' : 'never'}

@@ -76,11 +76,22 @@ export function FloatingSpritesBackground() {
     return () => document.removeEventListener('visibilitychange', onVis)
   }, [])
 
-  // Radial mask: sprites stay fully visible toward the page edges and fade
-  // through the central reading column so they can't compete with body /
-  // heading text (especially pink-on-pink in light theme).
-  const READING_MASK =
-    'radial-gradient(ellipse 58% 72% at 50% 48%, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.55) 38%, rgba(0,0,0,1) 78%)'
+  // Reading-area fade: sprites stay fully visible toward the page edges and
+  // are obscured through the central reading column so they can't compete with
+  // body / heading text (especially pink-on-pink in light theme).
+  //
+  // Previously implemented with CSS `mask-image` on this wrapper. Firefox
+  // software-composites masks over animating WebGL content, which forced a
+  // full re-mask of the viewport every frame the sprites moved. Replacing the
+  // mask with a static gradient overlay painted in the page background colour
+  // keeps the same visual (sprites fade into the background through the
+  // centre) but lets Firefox cache a single gradient bitmap and skip the
+  // per-frame masking pass entirely. Chromium/Safari are unaffected.
+  const READING_OVERLAY =
+    'radial-gradient(ellipse 58% 72% at 50% 48%,' +
+    ' rgb(var(--bg-ink) / 0.88) 0%,' +
+    ' rgb(var(--bg-ink) / 0.45) 38%,' +
+    ' rgb(var(--bg-ink) / 0) 78%)'
 
   if (reducedData) return null
 
@@ -88,10 +99,6 @@ export function FloatingSpritesBackground() {
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 z-0 motion-reduce:opacity-60"
-      style={{
-        maskImage: READING_MASK,
-        WebkitMaskImage: READING_MASK,
-      }}
     >
       <div className="h-full min-h-[100dvh] w-full">
         <FloatingSpritesScene
@@ -102,6 +109,11 @@ export function FloatingSpritesBackground() {
           dprMax={tier.dprMax}
         />
       </div>
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={{ background: READING_OVERLAY }}
+      />
     </div>
   )
 }

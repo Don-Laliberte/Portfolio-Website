@@ -42,6 +42,16 @@ const BASE_KEYS: BaseTexKey[] = [
 
 type MapsState = Record<BaseTexKey, THREE.CanvasTexture>
 
+/**
+ * Cheap one-shot UA sniff. We only use this to throttle the sprite simulation
+ * on Firefox (its compositor has the least rAF headroom of the three engines
+ * we target); UA-sniffing for that one decision is acceptable because the
+ * fallback is just a smoother-vs-cheaper visual tradeoff, not a correctness
+ * difference. Evaluates at module load; safe under SSR (returns `false`).
+ */
+const IS_FIREFOX =
+  typeof navigator !== 'undefined' && navigator.userAgent.includes('Firefox')
+
 /** Per-spawn chance the JOB easter egg appears. */
 const JOB_EASTER_EGG_CHANCE = 0.1
 
@@ -462,11 +472,25 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maps, slotCount])
 
+  // On Firefox we cap the simulation to ~30 Hz: Firefox's compositor has the
+  // least rAF headroom of the three engines, especially with our sticky navbar
+  // + fixed WebGL stack, and 30 fps reads as smooth at this scale. Chromium
+  // and Safari run at full refresh rate (`TARGET_STEP_S = 0` means "every
+  // frame"). MAX_STEP_S caps the physics step on both paths so a long pause
+  // doesn't translate into a giant lurch on the first resumed frame.
+  const stepAccumRef = useRef(0)
+  const TARGET_STEP_S = IS_FIREFOX ? 1 / 30 : 0
+  const MAX_STEP_S = 1 / 30
+
   useFrame((_, dt) => {
     const slots = slotsRef.current
     if (!maps || slots.length === 0) return
 
-    const step = Math.min(dt, 1 / 30)
+    stepAccumRef.current += dt
+    if (stepAccumRef.current < TARGET_STEP_S) return
+    const step = Math.min(stepAccumRef.current, MAX_STEP_S)
+    stepAccumRef.current = 0
+
     const vWidth = viewport.width
     const vHeight = viewport.height
     const vFactor = viewport.factor // px per world unit at z = 0

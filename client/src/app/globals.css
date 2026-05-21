@@ -119,7 +119,9 @@ body.single-scroll-layout {
   overflow-y: auto;
   overflow-x: hidden;
   scroll-snap-type: y mandatory;
-  scroll-behavior: smooth;
+  /* No `scroll-behavior: smooth` here — `scrollIntoView({ behavior: 'smooth' })`
+   * in Navbar already drives programmatic smooth scrolling on every engine, and
+   * combining CSS-smooth with mandatory snap stalls Firefox's compositor. */
   scroll-padding-top: 64px;
   /* Firefox */
   scrollbar-width: none;
@@ -202,12 +204,10 @@ body.modal-open .scroll-container {
 
 .animate-glow-pulse {
   animation: glow-pulse 2.4s ease-in-out infinite;
-  will-change: box-shadow;
 }
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
-  will-change: transform;
 }
 
 /*
@@ -272,6 +272,46 @@ body.modal-open .scroll-container {
   .cyber-panel.modal-panel {
     background: rgb(var(--bg-panel) / 0.99);
   }
+}
+
+/* Sticky navbar surface. Defined as a class (instead of an inline style on the
+ * header) so the `body.is-scrolling` rule below can disable the blur during an
+ * active scroll without re-rendering React. */
+.navbar-glass {
+  background: rgb(var(--bg-ink) / 0.78);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgb(var(--border) / 0.2);
+}
+
+@supports not ((backdrop-filter: blur(10px)) or (-webkit-backdrop-filter: blur(10px))) {
+  .navbar-glass {
+    background: rgb(var(--bg-ink) / 0.94);
+  }
+}
+
+/* While the user is actively scrolling the main container, drop backdrop-filter
+ * blurs and pause decorative scan animation. Reapplied ~150 ms after the last
+ * scroll event by `useScrollContainerScrolling`. This is the single biggest
+ * Firefox win — Firefox's compositor stalls when blurring a region whose
+ * underlying pixels change every frame. Chromium/Safari render the swap as a
+ * static frame during the brief scroll window. */
+body.is-scrolling .navbar-glass,
+body.is-scrolling .cyber-panel {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body.is-scrolling .navbar-glass {
+  background: rgb(var(--bg-ink) / 0.94);
+}
+
+body.is-scrolling .cyber-panel {
+  background: rgb(var(--bg-panel) / 0.9);
+}
+
+body.is-scrolling .cyber-panel.modal-panel {
+  background: rgb(var(--bg-panel) / 0.99);
 }
 
 /* Social CTA: inherits --accent from the parent card, which SocialsSection
