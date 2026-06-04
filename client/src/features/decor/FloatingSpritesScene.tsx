@@ -281,14 +281,15 @@ function randomSizeMul(key: TexKey): number {
 }
 
 type SpriteFieldProps = {
+  active: boolean
   reducedMotion: boolean
   slotCount: number
   spritePx: number
 }
 
-function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
+function SpriteField({ active, reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
   const [maps, setMaps] = useState<MapsState | null>(null)
-  const { viewport } = useThree()
+  const { invalidate, viewport } = useThree()
 
   // Sprite + slot state (mutable, ref-only)
   const spriteRefs = useMemo(
@@ -487,8 +488,19 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
       next.push(s)
     }
     slotsRef.current = next
+    invalidate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maps, slotCount])
+
+  useEffect(() => {
+    if (!maps) return
+    invalidate()
+  }, [maps, invalidate, viewport.width, viewport.height])
+
+  useEffect(() => {
+    if (!active) return
+    invalidate()
+  }, [active, invalidate])
 
   // On Firefox we cap the simulation to ~30 Hz: Firefox's compositor has the
   // least rAF headroom of the three engines, especially with our sticky navbar
@@ -502,10 +514,13 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
 
   useFrame((_, dt) => {
     const slots = slotsRef.current
-    if (!maps || slots.length === 0) return
+    if (!maps || slots.length === 0 || !active) return
 
     stepAccumRef.current += dt
-    if (stepAccumRef.current < TARGET_STEP_S) return
+    if (stepAccumRef.current < TARGET_STEP_S) {
+      invalidate()
+      return
+    }
     const step = Math.min(stepAccumRef.current, MAX_STEP_S)
     stepAccumRef.current = 0
 
@@ -513,6 +528,7 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
     const vHeight = viewport.height
     const vFactor = viewport.factor // px per world unit at z = 0
     const reveal = fieldRevealMultiplier(mapsLoadedAtRef.current, performance.now())
+    const revealComplete = reveal >= 1
 
     for (let i = 0; i < slots.length; i++) {
       const slot = slots[i]!
@@ -603,6 +619,11 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
       mat.rotation = slot.rotZ
       spr.position.set(slot.px, slot.py, slot.pz)
     }
+
+    // Demand frameloop: schedule the next draw while the field is animating.
+    if (!revealComplete || !reducedMotion) {
+      invalidate()
+    }
   })
 
   return (
@@ -636,7 +657,7 @@ export default function FloatingSpritesScene({
   spritePx,
   dprMax,
 }: FloatingSpritesSceneProps) {
-  const frameloop = active ? 'always' : 'never'
+  const frameloop = active ? 'demand' : 'never'
 
   return (
     <Canvas
@@ -654,6 +675,7 @@ export default function FloatingSpritesScene({
       }}
     >
       <SpriteField
+        active={active}
         reducedMotion={reducedMotion}
         slotCount={slotCount}
         spritePx={spritePx}
