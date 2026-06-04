@@ -1,6 +1,5 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import { useInView } from 'framer-motion'
 import { useMemo, useRef, useState } from 'react'
@@ -11,13 +10,10 @@ import { TypewriterLine, type TypewriterSegment } from '@/components/shared/Type
 import { useTheme } from '@/lib/theme-provider'
 import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 
-const WorkModal = dynamic(
-  () => import('./WorkModal').then((m) => m.WorkModal),
-  { ssr: false },
-)
-
 interface WorkCardProps {
   project: WorkProject
+  onViewMore: () => void
+  onViewMoreIntent?: () => void
 }
 
 type TextStep = {
@@ -29,8 +25,7 @@ type TextStep = {
   maxLineDurationMs: number
 }
 
-export function WorkCard({ project }: WorkCardProps) {
-  const [open, setOpen] = useState(false)
+export function WorkCard({ project, onViewMore, onViewMoreIntent }: WorkCardProps) {
   const [animationKey, setAnimationKey] = useState(0)
   const hoverRef = useRef(false)
   const { theme } = useTheme()
@@ -87,8 +82,7 @@ export function WorkCard({ project }: WorkCardProps) {
   }
 
   return (
-    <>
-      <CyberPanel
+    <CyberPanel
         hover
         className="animated-logo-trigger flex h-full flex-col p-6"
         onMouseEnter={handleMouseEnter}
@@ -162,7 +156,9 @@ export function WorkCard({ project }: WorkCardProps) {
           <div className="mt-auto flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
-              onClick={() => setOpen(true)}
+              onPointerEnter={onViewMoreIntent}
+              onFocus={onViewMoreIntent}
+              onClick={onViewMore}
               className="view-more-btn group/view inline-flex items-center gap-1.5 font-tech text-sm uppercase tracking-[0.2em]"
             >
               View more
@@ -192,8 +188,5 @@ export function WorkCard({ project }: WorkCardProps) {
           </div>
         </div>
       </CyberPanel>
-
-      <WorkModal open={open} onClose={() => setOpen(false)} project={project} />
-    </>
   )
 }
