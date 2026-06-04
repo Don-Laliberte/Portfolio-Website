@@ -1,0 +1,14 @@
+# ---------------------------------------------------------------------
+# Static Assets & Large Binaries (Massive Context Sinks)
+# ---------------------------------------------------------------------
+public/videos/
+public/audio/
+**/assets/**/*.png
+**/assets/**/*.jpg
+**/assets/**/*.svg
+**/assets/**/*.glb
+**/assets/**/*.gltf
+*.mp4
+*.zip
+*.tar.gz
+*.pdf
