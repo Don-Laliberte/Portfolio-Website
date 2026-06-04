@@ -1,9 +1,10 @@
 'use client'
 
-import { m, useInView, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { m, useInView } from 'framer-motion'
+import { useRef, type ReactNode } from 'react'
 import { SectionHeading } from '@/components/shared/SectionHeading'
-import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
+import { TypewriterLine } from '@/components/shared/TypewriterText'
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 
 const fadeUp = {
   hidden: { opacity: 0, y: 22 },
@@ -70,29 +71,12 @@ function ContentBlock({
 }) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, amount: 0.25 })
-  const prefersReduced = useReducedMotion() ?? false
   const body = typeof children === 'string' ? children : ''
-  const [lineIndex, setLineIndex] = useState(0)
 
-  useEffect(() => {
-    if (!inView) return
-    if (prefersReduced) setLineIndex(2)
-  }, [inView, prefersReduced])
-
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (!inView) return 'idle'
-      if (prefersReduced) return 'done'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [inView, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, 2))
-  }, [])
+  const { lineState, onLineDone, showCursor } = useTypewriterSequence({
+    lineCount: 2,
+    active: inView,
+  })
 
   return (
     <div
@@ -118,7 +102,7 @@ function ContentBlock({
           charIntervalMs={20}
           maxLineDurationMs={1100}
           settleMs={300}
-          showCursor={lineIndex === 0}
+          showCursor={showCursor(0)}
         />
       </h3>
       <p className="text-base leading-relaxed text-muted">
@@ -129,7 +113,7 @@ function ContentBlock({
           charIntervalMs={11}
           maxLineDurationMs={2600}
           settleMs={340}
-          showCursor={lineIndex === 1}
+          showCursor={showCursor(1)}
         />
       </p>
     </div>

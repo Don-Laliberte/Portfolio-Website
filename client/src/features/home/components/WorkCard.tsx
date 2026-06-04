@@ -2,13 +2,14 @@
 
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { useInView, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
+import { useMemo, useRef, useState } from 'react'
 import type { WorkProject } from '@/config/works'
 import { CyberPanel } from '@/components/shared/CyberPanel'
 import { MaskIcon } from '@/components/shared/MaskIcon'
-import { TypewriterLine, type LineState, type TypewriterSegment } from '@/components/shared/TypewriterText'
+import { TypewriterLine, type TypewriterSegment } from '@/components/shared/TypewriterText'
 import { useTheme } from '@/lib/theme-provider'
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 
 const WorkModal = dynamic(
   () => import('./WorkModal').then((m) => m.WorkModal),
@@ -36,8 +37,6 @@ export function WorkCard({ project }: WorkCardProps) {
   const { theme } = useTheme()
   const copyRef = useRef<HTMLDivElement>(null)
   const inView = useInView(copyRef, { once: true, amount: 0.2 })
-  const prefersReduced = useReducedMotion() ?? false
-  const [lineIndex, setLineIndex] = useState(0)
 
   const resolvedLogoSrc =
     theme === 'dark' && project.logoSrcDark ? project.logoSrcDark : project.logoSrc
@@ -74,27 +73,10 @@ export function WorkCard({ project }: WorkCardProps) {
     return s
   }, [project])
 
-  const lineCount = steps.length
-
-  useEffect(() => {
-    if (!inView) return
-    if (prefersReduced) setLineIndex(lineCount)
-  }, [inView, prefersReduced, lineCount])
-
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (!inView) return 'idle'
-      if (prefersReduced) return 'done'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [inView, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, lineCount))
-  }, [lineCount])
+  const { lineState, onLineDone, showCursor } = useTypewriterSequence({
+    lineCount: steps.length,
+    active: inView,
+  })
 
   const handleMouseEnter = () => {
     if (!hoverRef.current && isAnimatedLogo) {
@@ -162,7 +144,7 @@ export function WorkCard({ project }: WorkCardProps) {
                   charIntervalMs={step.charIntervalMs}
                   maxLineDurationMs={step.maxLineDurationMs}
                   settleMs={320}
-                  showCursor={lineIndex === i}
+                  showCursor={showCursor(i)}
                 />
               </Comp>
             )

@@ -1,9 +1,10 @@
 'use client'
 
-import { m, useInView, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { m, useInView } from 'framer-motion'
+import { useMemo, useRef, type ReactNode } from 'react'
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 import { Divider } from './Divider'
-import { TypewriterLine, type LineState, type TypewriterSegment } from './TypewriterText'
+import { TypewriterLine, type TypewriterSegment } from './TypewriterText'
 
 interface SectionHeadingProps {
   eyebrow?: string
@@ -32,8 +33,6 @@ export function SectionHeading({
 }: SectionHeadingProps) {
   const ref = useRef<HTMLDivElement>(null)
   const inView = useInView(ref, { once: true, amount: 0.3 })
-  const prefersReduced = useReducedMotion() ?? false
-  const [lineIndex, setLineIndex] = useState(0)
 
   const fadeUp = {
     hidden: { opacity: 0, y: 16 },
@@ -69,27 +68,12 @@ export function SectionHeading({
     return n
   }, [eyebrow, subtitleStr])
 
-  useEffect(() => {
-    if (!inView) return
-    if (prefersReduced) {
-      setLineIndex(lineCount)
-    }
-  }, [inView, prefersReduced, lineCount])
+  const subtitleLineIndex = eyebrow ? 2 : 1
 
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (prefersReduced && inView) return 'done'
-      if (!inView) return 'idle'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [inView, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, lineCount))
-  }, [lineCount])
+  const { lineState, onLineDone, showCursor } = useTypewriterSequence({
+    lineCount,
+    active: inView,
+  })
 
   const alignment = align === 'center' ? 'items-center text-center' : 'items-start text-left'
 
@@ -116,7 +100,7 @@ export function SectionHeading({
             charIntervalMs={18}
             maxLineDurationMs={1700}
             settleMs={340}
-            showCursor={lineIndex === 0}
+            showCursor={showCursor(0)}
           />
         ) : (
           <>
@@ -148,7 +132,7 @@ export function SectionHeading({
               charIntervalMs={16}
               maxLineDurationMs={1400}
               settleMs={320}
-              showCursor={lineIndex === 1}
+              showCursor={showCursor(1)}
             />
           ) : (
             eyebrow
@@ -165,12 +149,12 @@ export function SectionHeading({
           {useTypewriter ? (
             <TypewriterLine
               segments={[{ text: subtitleStr, final: 'muted' }]}
-              state={lineState(eyebrow ? 2 : 1)}
+              state={lineState(subtitleLineIndex)}
               onComplete={onLineDone}
               charIntervalMs={13}
               maxLineDurationMs={2600}
               settleMs={340}
-              showCursor={lineIndex === (eyebrow ? 2 : 1)}
+              showCursor={showCursor(subtitleLineIndex)}
             />
           ) : (
             subtitleStr
