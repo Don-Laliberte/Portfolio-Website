@@ -64,6 +64,8 @@ const LIFETIME_MAX_S = 36
 const FADE_IN_S = 0.8
 const FADE_OUT_S = 1.4
 const MAX_OPACITY = 0.6
+/** Whole field eases in after textures load so sprites don't pop at full opacity. */
+const FIELD_REVEAL_S = 1.35
 
 /** Light per-texture size bias so head/irl don't dominate next to small icons. */
 const PER_KEY_SIZE_BIAS: Record<TexKey, number> = {
@@ -259,6 +261,16 @@ function makeEmptySlot(): SlotState {
   }
 }
 
+function easeOutCubic(u: number) {
+  return 1 - (1 - u) ** 3
+}
+
+function fieldRevealMultiplier(mapsLoadedAtMs: number | null, nowMs: number): number {
+  if (mapsLoadedAtMs === null) return 0
+  const u = Math.min(1, (nowMs - mapsLoadedAtMs) / 1000 / FIELD_REVEAL_S)
+  return easeOutCubic(u)
+}
+
 function pickBaseKey(): BaseTexKey {
   return BASE_KEYS[Math.floor(Math.random() * BASE_KEYS.length)]!
 }
@@ -269,14 +281,15 @@ function randomSizeMul(key: TexKey): number {
 }
 
 type SpriteFieldProps = {
+  active: boolean
   reducedMotion: boolean
   slotCount: number
   spritePx: number
 }
 
-function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
+function SpriteField({ active, reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
   const [maps, setMaps] = useState<MapsState | null>(null)
-  const { viewport } = useThree()
+  const { invalidate, viewport } = useThree()
 
   // Sprite + slot state (mutable, ref-only)
   const spriteRefs = useMemo(
@@ -290,6 +303,7 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
   const jobTexRef = useRef<THREE.CanvasTexture | null>(null)
   const jobLoadingRef = useRef<Promise<THREE.CanvasTexture> | null>(null)
   const mountedRef = useRef(true)
+  const mapsLoadedAtRef = useRef<number | null>(null)
 
   useEffect(() => {
     mountedRef.current = true
@@ -368,6 +382,7 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
           laptopBlue,
         )
         disposablesRef.current.push(...local)
+        mapsLoadedAtRef.current = performance.now()
         setMaps({
           handheld,
           bunny,
@@ -464,13 +479,28 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
     for (let i = 0; i < slotCount; i++) {
       const s = makeEmptySlot()
       respawn(s, w, h)
-      // Spread initial ages across each slot's own lifetime so cycles are out of phase.
-      s.age = (i / Math.max(1, slotCount)) * s.lifetime * 0.9
+      // Stagger lifetimes for out-of-phase respawns; keep age at 0 so the
+      // per-sprite fade-in curve applies once textures are ready.
+      s.lifetime =
+        LIFETIME_MIN_S +
+        (i / Math.max(1, slotCount)) * (LIFETIME_MAX_S - LIFETIME_MIN_S)
+      s.age = 0
       next.push(s)
     }
     slotsRef.current = next
+    invalidate()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [maps, slotCount])
+
+  useEffect(() => {
+    if (!maps) return
+    invalidate()
+  }, [maps, invalidate, viewport.width, viewport.height])
+
+  useEffect(() => {
+    if (!active) return
+    invalidate()
+  }, [active, invalidate])
 
   // On Firefox we cap the simulation to ~30 Hz: Firefox's compositor has the
   // least rAF headroom of the three engines, especially with our sticky navbar
@@ -484,16 +514,21 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
 
   useFrame((_, dt) => {
     const slots = slotsRef.current
-    if (!maps || slots.length === 0) return
+    if (!maps || slots.length === 0 || !active) return
 
     stepAccumRef.current += dt
-    if (stepAccumRef.current < TARGET_STEP_S) return
+    if (stepAccumRef.current < TARGET_STEP_S) {
+      invalidate()
+      return
+    }
     const step = Math.min(stepAccumRef.current, MAX_STEP_S)
     stepAccumRef.current = 0
 
     const vWidth = viewport.width
     const vHeight = viewport.height
     const vFactor = viewport.factor // px per world unit at z = 0
+    const reveal = fieldRevealMultiplier(mapsLoadedAtRef.current, performance.now())
+    const revealComplete = reveal >= 1
 
     for (let i = 0; i < slots.length; i++) {
       const slot = slots[i]!
@@ -523,7 +558,7 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
       if (reducedMotion) {
         spr.position.set(slot.px, slot.py, slot.pz)
         mat.rotation = 0
-        mat.opacity = slot.appliedTexKey ? MAX_OPACITY : 0
+        mat.opacity = slot.appliedTexKey ? MAX_OPACITY * reveal : 0
         continue
       }
 
@@ -580,9 +615,14 @@ function SpriteField({ reducedMotion, slotCount, spritePx }: SpriteFieldProps) {
         op = MAX_OPACITY * Math.max(0, (L - t) / FADE_OUT_S)
       }
 
-      mat.opacity = slot.appliedTexKey ? op : 0
+      mat.opacity = (slot.appliedTexKey ? op : 0) * reveal
       mat.rotation = slot.rotZ
       spr.position.set(slot.px, slot.py, slot.pz)
+    }
+
+    // Demand frameloop: schedule the next draw while the field is animating.
+    if (!revealComplete || !reducedMotion) {
+      invalidate()
     }
   })
 
@@ -617,7 +657,7 @@ export default function FloatingSpritesScene({
   spritePx,
   dprMax,
 }: FloatingSpritesSceneProps) {
-  const frameloop = active ? 'always' : 'never'
+  const frameloop = active ? 'demand' : 'never'
 
   return (
     <Canvas
@@ -635,6 +675,7 @@ export default function FloatingSpritesScene({
       }}
     >
       <SpriteField
+        active={active}
         reducedMotion={reducedMotion}
         slotCount={slotCount}
         spritePx={spritePx}

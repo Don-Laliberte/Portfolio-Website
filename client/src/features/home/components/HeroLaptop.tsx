@@ -1,8 +1,10 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { Suspense, useEffect, useRef, useState } from 'react'
+import { Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { m } from 'framer-motion'
+import { useMediaQuery } from '@/lib/use-media-query'
+import { usePageVisibility } from '@/lib/use-page-visibility'
 
 const portraitIn = {
   hidden: { opacity: 0, scale: 0.92 },
@@ -13,16 +15,17 @@ const portraitIn = {
   },
 }
 
+const IN_VIEW_THRESHOLD = 0.1
+
 const HeroLaptopScene = dynamic(
   () => import('./HeroLaptopScene'),
-  { ssr: false, loading: () => <HeroLaptopFallback /> },
+  { ssr: false, loading: () => <HeroLaptopLoading /> },
 )
 
-function HeroLaptopFallback() {
+function HeroLaptopLoading() {
   return (
     <div
-      className="flex h-full w-full items-center justify-center font-tech text-xs uppercase tracking-[0.2em] opacity-40"
-      style={{ color: 'rgb(var(--text) / 0.6)' }}
+      className="flex h-full w-full items-center justify-center font-tech text-xs uppercase tracking-[0.2em] text-muted opacity-40"
       aria-hidden
     >
       Loading…
@@ -30,38 +33,55 @@ function HeroLaptopFallback() {
   )
 }
 
+function isElementInView(el: HTMLElement, threshold: number): boolean {
+  const rect = el.getBoundingClientRect()
+  if (rect.width <= 0 || rect.height <= 0) return false
+
+  const vh = window.innerHeight
+  const vw = window.innerWidth
+  const visibleHeight = Math.min(rect.bottom, vh) - Math.max(rect.top, 0)
+  const visibleWidth = Math.min(rect.right, vw) - Math.max(rect.left, 0)
+  if (visibleHeight <= 0 || visibleWidth <= 0) return false
+
+  const visibleArea = visibleHeight * visibleWidth
+  const totalArea = rect.width * rect.height
+  return visibleArea / totalArea >= threshold
+}
+
 export function HeroLaptop() {
   const rootRef = useRef<HTMLDivElement>(null)
   const [replayKey, setReplayKey] = useState(0)
-  const [reducedMotion, setReducedMotion] = useState(false)
-  // Seed true so the laptop renders on first paint even if IntersectionObserver
-  // hasn't fired yet (avoids a blank canvas on slow / production-only timing).
-  const [inView, setInView] = useState(true)
-  // Default to true so SSR -> hydration starts with the scene live. The
-  // `visibilitychange` effect below will flip this off if the tab is actually
-  // hidden when the page mounts.
-  const [pageVisible, setPageVisible] = useState(true)
+  const [inView, setInView] = useState(false)
   const leftViewRef = useRef(false)
 
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+  const pageVisible = usePageVisibility()
+
+  // Warm the JS chunk, GLB, and headshot on mount so first paint and
+  // scroll-back to the hero stay responsive. fetch/Image prime HTTP cache
+  // before HeroLaptopScene's useLoader / useGLTF run.
   useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const sync = () => setReducedMotion(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
+    void import('./HeroLaptopScene')
+    void fetch('/models/portfolio-laptop.glb')
+
+    const headshot = new Image()
+    headshot.src = '/images/don-headshot.jpg'
   }, [])
 
-  useEffect(() => {
-    const onVis = () => setPageVisible(document.visibilityState === 'visible')
-    document.addEventListener('visibilitychange', onVis)
-    return () => document.removeEventListener('visibilitychange', onVis)
-  }, [])
-
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = rootRef.current
     if (!el) return
 
-    const io = new IntersectionObserver(
+    let cancelled = false
+
+    const raf = requestAnimationFrame(() => {
+      if (cancelled) return
+      if (isElementInView(el, IN_VIEW_THRESHOLD)) {
+        setInView(true)
+      }
+    })
+
+    const inViewIo = new IntersectionObserver(
       (entries) => {
         const entry = entries[0]
         if (!entry) return
@@ -76,11 +96,15 @@ export function HeroLaptop() {
           leftViewRef.current = false
         }
       },
-      { threshold: 0.1 },
+      { threshold: IN_VIEW_THRESHOLD },
     )
 
-    io.observe(el)
-    return () => io.disconnect()
+    inViewIo.observe(el)
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(raf)
+      inViewIo.disconnect()
+    }
   }, [])
 
   return (
@@ -90,7 +114,7 @@ export function HeroLaptop() {
       className="relative mx-auto aspect-[4/3] w-[min(100%,460px)] shrink-0 sm:w-[min(100%,540px)] md:w-[min(100%,620px)] xl:mx-0 xl:w-[min(580px,48vw)] xl:max-w-[52%] xl:flex-shrink-0 2xl:w-[min(640px,46vw)]"
       aria-label="Animated laptop with portrait on screen"
     >
-      <Suspense fallback={<HeroLaptopFallback />}>
+      <Suspense fallback={<HeroLaptopLoading />}>
         <HeroLaptopScene
           replayKey={replayKey}
           reducedMotion={reducedMotion}

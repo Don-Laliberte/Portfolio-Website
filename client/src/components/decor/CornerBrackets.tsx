@@ -4,12 +4,10 @@ const Corner = ({ className }: { className: string }) => (
     aria-hidden
   >
     <div
-      className="absolute left-0 top-0 h-px w-full opacity-70"
-      style={{ background: 'rgb(var(--border))' }}
+      className="absolute left-0 top-0 h-px w-full bg-border opacity-70"
     />
     <div
-      className="absolute left-0 top-0 h-full w-px opacity-70"
-      style={{ background: 'rgb(var(--border))' }}
+      className="absolute left-0 top-0 h-full w-px bg-border opacity-70"
     />
   </div>
 )
@@ -22,8 +20,7 @@ export function CornerBrackets() {
       <Corner className="bottom-2 right-2 rotate-180 sm:bottom-3.5 sm:right-3.5 safe-inset-bottom safe-inset-right" />
       <Corner className="bottom-2 left-2 -rotate-90 sm:bottom-3.5 sm:left-3.5 safe-inset-bottom safe-inset-left" />
       <div
-        className="pointer-events-none fixed inset-2 z-[2] border sm:inset-3.5"
-        style={{ borderColor: 'rgb(var(--border) / 0.18)' }}
+        className="pointer-events-none fixed inset-2 z-[2] border border-frame sm:inset-3.5"
         aria-hidden
       />
     </>

@@ -1,9 +1,10 @@
 'use client'
 
-import { m, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useState } from 'react'
+import { m } from 'framer-motion'
+import { useSyncExternalStore } from 'react'
 import { Divider } from '@/components/shared/Divider'
-import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
+import { TypewriterLine } from '@/components/shared/TypewriterText'
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 import { HeroLaptop } from './HeroLaptop'
 
 const fadeUp = {
@@ -26,36 +27,15 @@ const EYEBROW =
 const BODY =
   'A young aspiring developer building tools, community sites, and occasionally pixel art. Currently leading CSUS and the UofC tech community.'
 
+const emptySubscribe = () => () => undefined
+
 export function HeroSection() {
-  const [mounted, setMounted] = useState(false)
-  const prefersReduced = useReducedMotion() ?? false
-  const [lineIndex, setLineIndex] = useState(0)
+  const mounted = useSyncExternalStore(emptySubscribe, () => true, () => false)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  const lineCount = 3
-
-  useEffect(() => {
-    if (!mounted) return
-    if (prefersReduced) setLineIndex(lineCount)
-  }, [mounted, prefersReduced, lineCount])
-
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (!mounted) return 'idle'
-      if (prefersReduced) return 'done'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [mounted, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, lineCount))
-  }, [lineCount])
+  const { lineState, onLineDone, showCursor } = useTypewriterSequence({
+    lineCount: 3,
+    active: mounted,
+  })
 
   return (
     <m.div
@@ -78,7 +58,7 @@ export function HeroSection() {
             charIntervalMs={19}
             maxLineDurationMs={1500}
             settleMs={340}
-            showCursor={lineIndex === 0}
+            showCursor={showCursor(0)}
           />
         </m.h1>
 
@@ -96,7 +76,7 @@ export function HeroSection() {
             charIntervalMs={15}
             maxLineDurationMs={2000}
             settleMs={320}
-            showCursor={lineIndex === 1}
+            showCursor={showCursor(1)}
           />
         </m.span>
 
@@ -112,7 +92,7 @@ export function HeroSection() {
             charIntervalMs={12}
             maxLineDurationMs={2600}
             settleMs={340}
-            showCursor={lineIndex === 2}
+            showCursor={showCursor(2)}
           />
         </m.p>
 

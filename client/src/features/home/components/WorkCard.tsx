@@ -1,43 +1,36 @@
 'use client'
 
-import dynamic from 'next/dynamic'
 import Image from 'next/image'
-import { useInView, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
+import { useMemo, useRef, useState } from 'react'
 import type { WorkProject } from '@/config/works'
 import { CyberPanel } from '@/components/shared/CyberPanel'
 import { MaskIcon } from '@/components/shared/MaskIcon'
-import { TypewriterLine, type LineState, type TypewriterSegment } from '@/components/shared/TypewriterText'
+import { TypewriterLine, type TypewriterSegment } from '@/components/shared/TypewriterText'
 import { useTheme } from '@/lib/theme-provider'
-
-const WorkModal = dynamic(
-  () => import('./WorkModal').then((m) => m.WorkModal),
-  { ssr: false },
-)
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 
 interface WorkCardProps {
   project: WorkProject
+  onViewMore: () => void
+  onViewMoreIntent?: () => void
 }
 
 type TextStep = {
   key: string
   as: 'h3' | 'p'
   className: string
-  style?: React.CSSProperties
   segments: TypewriterSegment[]
   charIntervalMs: number
   maxLineDurationMs: number
 }
 
-export function WorkCard({ project }: WorkCardProps) {
-  const [open, setOpen] = useState(false)
+export function WorkCard({ project, onViewMore, onViewMoreIntent }: WorkCardProps) {
   const [animationKey, setAnimationKey] = useState(0)
   const hoverRef = useRef(false)
   const { theme } = useTheme()
   const copyRef = useRef<HTMLDivElement>(null)
   const inView = useInView(copyRef, { once: true, amount: 0.2 })
-  const prefersReduced = useReducedMotion() ?? false
-  const [lineIndex, setLineIndex] = useState(0)
 
   const resolvedLogoSrc =
     theme === 'dark' && project.logoSrcDark ? project.logoSrcDark : project.logoSrc
@@ -50,8 +43,7 @@ export function WorkCard({ project }: WorkCardProps) {
       {
         key: 'name',
         as: 'h3',
-        className: 'mb-1 font-display text-2xl font-bold md:text-[1.7rem]',
-        style: { color: 'rgb(var(--text))' },
+        className: 'mb-1 font-display text-2xl font-bold md:text-[1.7rem] text-foreground',
         segments: [{ text: project.name, final: 'text' }],
         charIntervalMs: 17,
         maxLineDurationMs: 900,
@@ -64,8 +56,7 @@ export function WorkCard({ project }: WorkCardProps) {
       s.push({
         key: 'role',
         as: 'p',
-        className: 'mb-3 font-tech text-xs uppercase tracking-[0.22em]',
-        style: { color: 'rgb(var(--accent))' },
+        className: 'mb-3 font-tech text-xs uppercase tracking-[0.22em] text-accent',
         segments: [{ text: roleLine, final: 'accentToken' }],
         charIntervalMs: 15,
         maxLineDurationMs: 750,
@@ -74,27 +65,10 @@ export function WorkCard({ project }: WorkCardProps) {
     return s
   }, [project])
 
-  const lineCount = steps.length
-
-  useEffect(() => {
-    if (!inView) return
-    if (prefersReduced) setLineIndex(lineCount)
-  }, [inView, prefersReduced, lineCount])
-
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (!inView) return 'idle'
-      if (prefersReduced) return 'done'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [inView, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, lineCount))
-  }, [lineCount])
+  const { lineState, onLineDone, showCursor } = useTypewriterSequence({
+    lineCount: steps.length,
+    active: inView,
+  })
 
   const handleMouseEnter = () => {
     if (!hoverRef.current && isAnimatedLogo) {
@@ -108,8 +82,7 @@ export function WorkCard({ project }: WorkCardProps) {
   }
 
   return (
-    <>
-      <CyberPanel
+    <CyberPanel
         hover
         className="animated-logo-trigger flex h-full flex-col p-6"
         onMouseEnter={handleMouseEnter}
@@ -154,7 +127,7 @@ export function WorkCard({ project }: WorkCardProps) {
           {steps.map((step, i) => {
             const Comp = step.as
             return (
-              <Comp key={step.key} className={step.className} style={step.style}>
+              <Comp key={step.key} className={step.className}>
                 <TypewriterLine
                   segments={step.segments}
                   state={lineState(i)}
@@ -162,7 +135,7 @@ export function WorkCard({ project }: WorkCardProps) {
                   charIntervalMs={step.charIntervalMs}
                   maxLineDurationMs={step.maxLineDurationMs}
                   settleMs={320}
-                  showCursor={lineIndex === i}
+                  showCursor={showCursor(i)}
                 />
               </Comp>
             )
@@ -183,7 +156,9 @@ export function WorkCard({ project }: WorkCardProps) {
           <div className="mt-auto flex items-center justify-end gap-3 pt-2">
             <button
               type="button"
-              onClick={() => setOpen(true)}
+              onPointerEnter={onViewMoreIntent}
+              onFocus={onViewMoreIntent}
+              onClick={onViewMore}
               className="view-more-btn group/view inline-flex items-center gap-1.5 font-tech text-sm uppercase tracking-[0.2em]"
             >
               View more
@@ -213,8 +188,5 @@ export function WorkCard({ project }: WorkCardProps) {
           </div>
         </div>
       </CyberPanel>
-
-      <WorkModal open={open} onClose={() => setOpen(false)} project={project} />
-    </>
   )
 }

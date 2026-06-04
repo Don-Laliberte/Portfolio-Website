@@ -1,8 +1,9 @@
 'use client'
 
-import { m, useInView, useReducedMotion } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { TypewriterLine, type LineState } from '@/components/shared/TypewriterText'
+import { m, useInView } from 'framer-motion'
+import { useRef } from 'react'
+import { TypewriterLine } from '@/components/shared/TypewriterText'
+import { useTypewriterSequence } from '@/lib/use-typewriter-sequence'
 
 const BODY =
   "If you're interested in me yapping about my new programming hyperfixations"
@@ -10,31 +11,11 @@ const BODY =
 export function PostsSection() {
   const rootRef = useRef<HTMLDivElement>(null)
   const inView = useInView(rootRef, { once: true, amount: 0.3 })
-  const prefersReduced = useReducedMotion() ?? false
-  const [lineIndex, setLineIndex] = useState(0)
-  const lineCount = 3
 
-  useEffect(() => {
-    if (!inView) return
-    if (prefersReduced) setLineIndex(lineCount)
-  }, [inView, prefersReduced, lineCount])
-
-  const lineState = useCallback(
-    (i: number): LineState => {
-      if (!inView) return 'idle'
-      if (prefersReduced) return 'done'
-      if (i < lineIndex) return 'done'
-      if (i === lineIndex) return 'running'
-      return 'idle'
-    },
-    [inView, lineIndex, prefersReduced],
-  )
-
-  const onLineDone = useCallback(() => {
-    setLineIndex((j) => Math.min(j + 1, lineCount))
-  }, [lineCount])
-
-  const showStayBlink = lineIndex >= 3 || (prefersReduced && inView)
+  const { lineState, onLineDone, showCursor, isComplete } = useTypewriterSequence({
+    lineCount: 3,
+    active: inView,
+  })
 
   return (
     <m.div
@@ -57,7 +38,7 @@ export function PostsSection() {
           charIntervalMs={18}
           maxLineDurationMs={1400}
           settleMs={340}
-          showCursor={lineIndex === 0}
+          showCursor={showCursor(0)}
         />
       </h2>
 
@@ -69,16 +50,15 @@ export function PostsSection() {
           charIntervalMs={12}
           maxLineDurationMs={2600}
           settleMs={320}
-          showCursor={lineIndex === 1}
+          showCursor={showCursor(1)}
         />
       </p>
 
       <p
-        className="mt-8 flex items-center gap-1 font-tech text-sm uppercase tracking-[0.3em]"
-        style={{ color: 'rgb(var(--accent))' }}
+        className="mt-8 flex items-center gap-1 font-tech text-sm uppercase tracking-[0.3em] text-accent"
         aria-label="Coming soon"
       >
-        {showStayBlink ? (
+        {isComplete ? (
           <>
             <span>Stay tuned</span>
             <span className="animate-blink inline-block" aria-hidden>
@@ -93,7 +73,7 @@ export function PostsSection() {
             charIntervalMs={20}
             maxLineDurationMs={650}
             settleMs={240}
-            showCursor={lineIndex === 2}
+            showCursor={showCursor(2)}
           />
         )}
       </p>

@@ -191,6 +191,11 @@ body.modal-open .scroll-container {
   50% { transform: translateY(-6px); }
 }
 
+@keyframes sprite-canvas-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .animate-scan {
   animation: scan 7s linear infinite;
   top: 0;
@@ -208,6 +213,12 @@ body.modal-open .scroll-container {
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+}
+
+.animate-sprite-canvas-in {
+  animation: sprite-canvas-in 1.2s ease-out forwards;
+  opacity: 0;
+  will-change: opacity;
 }
 
 /*
@@ -547,6 +558,54 @@ body.is-scrolling .cyber-panel.modal-panel {
 /* Muted body text via token. */
 .text-muted {
   color: rgb(var(--text-muted) / var(--text-muted-alpha));
+}
+
+/*
+ * Semantic utilities backed by runtime :root tokens (theme-aware).
+ * Prefer these over inline rgb(var(--*)) in components.
+ */
+.text-accent {
+  color: rgb(var(--accent));
+}
+
+.text-accent-bright {
+  color: rgb(var(--accent-bright));
+}
+
+.text-foreground {
+  color: rgb(var(--text));
+}
+
+.text-foreground-soft {
+  color: rgb(var(--text) / 0.7);
+}
+
+.text-accent-faint {
+  color: rgb(var(--accent) / 0.08);
+}
+
+.border-l-accent {
+  border-left: 2px solid rgb(var(--accent) / 0.4);
+}
+
+.bg-panel-soft {
+  background: rgb(var(--bg-panel) / 0.5);
+}
+
+.border-token-muted {
+  border: 1px solid rgb(var(--border) / 0.35);
+}
+
+.bg-accent-bright {
+  background-color: rgb(var(--accent-bright));
+}
+
+.bg-border {
+  background-color: rgb(var(--border));
+}
+
+.border-frame {
+  border-color: rgb(var(--border) / 0.18);
 }
 
 /*

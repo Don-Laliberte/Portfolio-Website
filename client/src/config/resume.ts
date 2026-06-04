@@ -46,6 +46,11 @@ export interface ResumeOnePager {
   projects: ResumeProjectItem[]
 }
 
+/** Public path to the downloadable PDF resume. */
+export const RESUME_PDF_PATH = '/documents/Don-Laliberte-Resume.pdf'
+
+export const RESUME_PDF_FILENAME = 'Don-Laliberte-Resume.pdf'
+
 export const RESUME_ONE_PAGER: ResumeOnePager = {
   version: 'new-grad-v1',
   targetRole: 'SWE Intern / New Grad',
