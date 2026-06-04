@@ -191,6 +191,11 @@ body.modal-open .scroll-container {
   50% { transform: translateY(-6px); }
 }
 
+@keyframes sprite-canvas-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .animate-scan {
   animation: scan 7s linear infinite;
   top: 0;
@@ -208,6 +213,12 @@ body.modal-open .scroll-container {
 
 .animate-float {
   animation: float 4s ease-in-out infinite;
+}
+
+.animate-sprite-canvas-in {
+  animation: sprite-canvas-in 1.2s ease-out forwards;
+  opacity: 0;
+  will-change: opacity;
 }
 
 /*

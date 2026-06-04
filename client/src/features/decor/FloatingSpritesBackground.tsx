@@ -2,11 +2,18 @@
 
 import dynamic from 'next/dynamic'
 import { useEffect, useState } from 'react'
+import { useMediaQuery } from '@/lib/use-media-query'
+import { usePageVisibility } from '@/lib/use-page-visibility'
 
 const FloatingSpritesScene = dynamic(
   () => import('./FloatingSpritesScene'),
   { ssr: false },
 )
+
+/** Let the hero laptop claim the GPU first before mounting a second WebGL context. */
+const MIN_CANVAS_DEFER_MS = 400
+/** Mount sprites once idle, but don't wait forever on a busy main thread. */
+const IDLE_CALLBACK_TIMEOUT_MS = 1500
 
 type ViewportTier = {
   slotCount: number
@@ -44,37 +51,48 @@ function useViewportTier(): ViewportTier {
   return tier
 }
 
+function useDeferredCanvasMount(): boolean {
+  const [ready, setReady] = useState(false)
+
+  useEffect(() => {
+    void import('./FloatingSpritesScene')
+
+    let cancelled = false
+    let idleId: number | undefined
+
+    const enableCanvas = () => {
+      if (!cancelled) setReady(true)
+    }
+
+    const minDeferTimer = window.setTimeout(() => {
+      if (cancelled) return
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(enableCanvas, {
+          timeout: IDLE_CALLBACK_TIMEOUT_MS,
+        })
+        return
+      }
+      enableCanvas()
+    }, MIN_CANVAS_DEFER_MS)
+
+    return () => {
+      cancelled = true
+      window.clearTimeout(minDeferTimer)
+      if (idleId !== undefined && 'cancelIdleCallback' in window) {
+        window.cancelIdleCallback(idleId)
+      }
+    }
+  }, [])
+
+  return ready
+}
+
 export function FloatingSpritesBackground() {
-  const [reducedMotion, setReducedMotion] = useState(false)
-  const [reducedData, setReducedData] = useState(false)
-  const [pageVisible, setPageVisible] = useState(
-    () => typeof document !== 'undefined' && document.visibilityState === 'visible',
-  )
+  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+  const reducedData = useMediaQuery('(prefers-reduced-data: reduce)')
+  const pageVisible = usePageVisibility()
+  const canvasReady = useDeferredCanvasMount()
   const tier = useViewportTier()
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
-    const sync = () => setReducedMotion(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
-
-  useEffect(() => {
-    const mq = window.matchMedia('(prefers-reduced-data: reduce)')
-    const sync = () => setReducedData(mq.matches)
-    sync()
-    // Older browsers (esp. Safari < 17) don't support addEventListener on
-    // MediaQueryList; guard with optional chaining.
-    mq.addEventListener?.('change', sync)
-    return () => mq.removeEventListener?.('change', sync)
-  }, [])
-
-  useEffect(() => {
-    const onVis = () => setPageVisible(document.visibilityState === 'visible')
-    document.addEventListener('visibilitychange', onVis)
-    return () => document.removeEventListener('visibilitychange', onVis)
-  }, [])
 
   // Reading-area fade: sprites stay fully visible toward the page edges and
   // are obscured through the central reading column so they can't compete with
@@ -101,13 +119,21 @@ export function FloatingSpritesBackground() {
       className="pointer-events-none fixed inset-0 z-0 motion-reduce:opacity-60"
     >
       <div className="h-full min-h-[100dvh] w-full">
-        <FloatingSpritesScene
-          active={pageVisible}
-          reducedMotion={reducedMotion}
-          slotCount={tier.slotCount}
-          spritePx={tier.spritePx}
-          dprMax={tier.dprMax}
-        />
+        {canvasReady ? (
+          <div
+            className={`h-full w-full animate-sprite-canvas-in ${
+              reducedMotion ? 'motion-reduce:animate-none motion-reduce:opacity-100' : ''
+            }`}
+          >
+            <FloatingSpritesScene
+              active={pageVisible}
+              reducedMotion={reducedMotion}
+              slotCount={tier.slotCount}
+              spritePx={tier.spritePx}
+              dprMax={tier.dprMax}
+            />
+          </div>
+        ) : null}
       </div>
       <div
         aria-hidden
