@@ -105,8 +105,7 @@ export function WorkModal({ open, onClose, project }: WorkModalProps) {
             >
               <h2
                 id="work-modal-title"
-                className="font-display text-2xl font-bold md:text-3xl heading-glow"
-                style={{ color: 'rgb(var(--text))' }}
+                className="font-display text-2xl font-bold text-foreground md:text-3xl heading-glow"
               >
                 {project.name}
               </h2>
@@ -124,10 +123,7 @@ export function WorkModal({ open, onClose, project }: WorkModalProps) {
               {/* Content column */}
               <div className="order-2 min-h-0 flex-1 overflow-y-auto px-6 pb-6 md:order-1">
                 {(project.role || project.timeframe) && (
-                  <p
-                    className="mb-4 font-tech text-xs uppercase tracking-[0.22em]"
-                    style={{ color: 'rgb(var(--accent))' }}
-                  >
+                  <p className="mb-4 font-tech text-xs uppercase tracking-[0.22em] text-accent">
                     {project.role}
                     {project.role && project.timeframe ? ' · ' : ''}
                     {project.timeframe}
@@ -164,8 +160,7 @@ export function WorkModal({ open, onClose, project }: WorkModalProps) {
                         href={project.repoUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="btn-accent"
-                        style={{ background: 'transparent' }}
+                        className="btn-accent bg-transparent"
                       >
                         <CodeIcon />
                         View code

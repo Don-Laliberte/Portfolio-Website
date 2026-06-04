@@ -561,6 +561,54 @@ body.is-scrolling .cyber-panel.modal-panel {
 }
 
 /*
+ * Semantic utilities backed by runtime :root tokens (theme-aware).
+ * Prefer these over inline rgb(var(--*)) in components.
+ */
+.text-accent {
+  color: rgb(var(--accent));
+}
+
+.text-accent-bright {
+  color: rgb(var(--accent-bright));
+}
+
+.text-foreground {
+  color: rgb(var(--text));
+}
+
+.text-foreground-soft {
+  color: rgb(var(--text) / 0.7);
+}
+
+.text-accent-faint {
+  color: rgb(var(--accent) / 0.08);
+}
+
+.border-l-accent {
+  border-left: 2px solid rgb(var(--accent) / 0.4);
+}
+
+.bg-panel-soft {
+  background: rgb(var(--bg-panel) / 0.5);
+}
+
+.border-token-muted {
+  border: 1px solid rgb(var(--border) / 0.35);
+}
+
+.bg-accent-bright {
+  background-color: rgb(var(--accent-bright));
+}
+
+.bg-border {
+  background-color: rgb(var(--border));
+}
+
+.border-frame {
+  border-color: rgb(var(--border) / 0.18);
+}
+
+/*
  * Animated CSUS logo: rendered via <object type="image/svg+xml">. The SVG
  * lives in its own document, so host-page :hover CSS won't cascade across
  * the boundary — we replay the embedded SVG animations by key-bumping the

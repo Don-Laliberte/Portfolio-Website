@@ -81,20 +81,15 @@ function ContentBlock({
   return (
     <div
       ref={ref}
-      className="relative overflow-hidden pl-5"
-      style={{ borderLeft: '2px solid rgb(var(--accent) / 0.4)' }}
+      className="relative overflow-hidden border-l-accent pl-5"
     >
       <span
         aria-hidden
-        className="pointer-events-none absolute right-0 top-0 select-none font-display text-[72px] font-black leading-none"
-        style={{ color: 'rgb(var(--accent) / 0.08)' }}
+        className="pointer-events-none absolute right-0 top-0 select-none font-display text-[72px] font-black leading-none text-accent-faint"
       >
         {String(index + 1).padStart(2, '0')}
       </span>
-      <h3
-        className="mb-2 font-tech text-xs font-bold uppercase tracking-[0.24em]"
-        style={{ color: 'rgb(var(--accent))' }}
-      >
+      <h3 className="mb-2 font-tech text-xs font-bold uppercase tracking-[0.24em] text-accent">
         <TypewriterLine
           segments={[{ text: title, final: 'accentToken' }]}
           state={lineState(0)}

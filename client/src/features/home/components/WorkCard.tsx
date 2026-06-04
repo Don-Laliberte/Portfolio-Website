@@ -24,7 +24,6 @@ type TextStep = {
   key: string
   as: 'h3' | 'p'
   className: string
-  style?: React.CSSProperties
   segments: TypewriterSegment[]
   charIntervalMs: number
   maxLineDurationMs: number
@@ -49,8 +48,7 @@ export function WorkCard({ project }: WorkCardProps) {
       {
         key: 'name',
         as: 'h3',
-        className: 'mb-1 font-display text-2xl font-bold md:text-[1.7rem]',
-        style: { color: 'rgb(var(--text))' },
+        className: 'mb-1 font-display text-2xl font-bold md:text-[1.7rem] text-foreground',
         segments: [{ text: project.name, final: 'text' }],
         charIntervalMs: 17,
         maxLineDurationMs: 900,
@@ -63,8 +61,7 @@ export function WorkCard({ project }: WorkCardProps) {
       s.push({
         key: 'role',
         as: 'p',
-        className: 'mb-3 font-tech text-xs uppercase tracking-[0.22em]',
-        style: { color: 'rgb(var(--accent))' },
+        className: 'mb-3 font-tech text-xs uppercase tracking-[0.22em] text-accent',
         segments: [{ text: roleLine, final: 'accentToken' }],
         charIntervalMs: 15,
         maxLineDurationMs: 750,
@@ -136,7 +133,7 @@ export function WorkCard({ project }: WorkCardProps) {
           {steps.map((step, i) => {
             const Comp = step.as
             return (
-              <Comp key={step.key} className={step.className} style={step.style}>
+              <Comp key={step.key} className={step.className}>
                 <TypewriterLine
                   segments={step.segments}
                   state={lineState(i)}

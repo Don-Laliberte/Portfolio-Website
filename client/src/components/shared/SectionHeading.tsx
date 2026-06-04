@@ -108,7 +108,7 @@ export function SectionHeading({
             {accent ? (
               <>
                 {' '}
-                <span style={{ color: 'rgb(var(--accent-bright))' }}>{accent}</span>
+                <span className="text-accent-bright">{accent}</span>
               </>
             ) : null}
             {tail ? <>{tail}</> : null}

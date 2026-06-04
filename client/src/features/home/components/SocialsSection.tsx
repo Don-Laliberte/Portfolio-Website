@@ -1,7 +1,7 @@
 'use client'
 
 import { m, useInView, useReducedMotion } from 'framer-motion'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { CyberPanel } from '@/components/shared/CyberPanel'
 import { MaskIcon } from '@/components/shared/MaskIcon'
 import { SectionHeading } from '@/components/shared/SectionHeading'
@@ -86,27 +86,17 @@ function SocialCardTypedBody({ s }: { s: Social }) {
   const prefersReduced = useReducedMotion() ?? false
   const [bodyDone, setBodyDone] = useState(false)
 
-  useEffect(() => {
-    if (prefersReduced) setBodyDone(true)
-  }, [prefersReduced])
-
   const bodyState: LineState =
     prefersReduced || bodyDone ? 'done' : inView ? 'running' : 'idle'
 
   return (
     <div ref={ref} className="flex h-full flex-col">
       <div className="mb-4 flex items-center gap-4">
-        <div
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-sm"
-          style={{
-            background: 'rgb(var(--bg-panel) / 0.5)',
-            border: '1px solid rgb(var(--border) / 0.35)',
-          }}
-        >
+        <div className="mb-4 flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-sm bg-panel-soft border-token-muted">
           <MaskIcon src={s.iconSrc} size={s.iconSize} color="rgb(var(--accent))" />
         </div>
         <div className="min-w-0">
-          <p className="font-display text-xl font-bold" style={{ color: 'rgb(var(--text))' }}>
+          <p className="font-display text-xl font-bold text-foreground">
             {s.name}
           </p>
           <p className="truncate font-tech text-xs uppercase tracking-[0.2em] text-muted">

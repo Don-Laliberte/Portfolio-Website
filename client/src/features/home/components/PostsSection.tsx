@@ -55,8 +55,7 @@ export function PostsSection() {
       </p>
 
       <p
-        className="mt-8 flex items-center gap-1 font-tech text-sm uppercase tracking-[0.3em]"
-        style={{ color: 'rgb(var(--accent))' }}
+        className="mt-8 flex items-center gap-1 font-tech text-sm uppercase tracking-[0.3em] text-accent"
         aria-label="Coming soon"
       >
         {isComplete ? (

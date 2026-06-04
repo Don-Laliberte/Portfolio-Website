@@ -62,13 +62,7 @@ function EndorsementCard({ endorsement }: { endorsement: Endorsement }) {
       className="group block no-underline"
     >
       <CyberPanel hover className="flex h-full items-center gap-4 p-4 md:p-5">
-        <div
-          className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-sm"
-          style={{
-            background: 'rgb(var(--bg-panel) / 0.5)',
-            border: '1px solid rgb(var(--border) / 0.35)',
-          }}
-        >
+        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-sm bg-panel-soft border-token-muted">
           {showImage ? (
             // Plain <img> avoids needing remotePatterns in next.config.ts.
             // eslint-disable-next-line @next/next/no-img-element
@@ -86,8 +80,7 @@ function EndorsementCard({ endorsement }: { endorsement: Endorsement }) {
           ) : (
             <span
               aria-hidden
-              className="font-tech text-sm font-bold tracking-wide"
-              style={{ color: 'rgb(var(--accent))' }}
+              className="font-tech text-sm font-bold tracking-wide text-accent"
             >
               {initials}
             </span>
@@ -95,10 +88,7 @@ function EndorsementCard({ endorsement }: { endorsement: Endorsement }) {
         </div>
 
         <div className="min-w-0 flex-1">
-          <p
-            className="truncate font-display text-xl font-bold"
-            style={{ color: 'rgb(var(--text))' }}
-          >
+          <p className="truncate font-display text-xl font-bold text-foreground">
             {endorsement.name}
           </p>
           <p className="truncate font-tech text-xs uppercase tracking-[0.2em] text-muted">
@@ -108,8 +98,7 @@ function EndorsementCard({ endorsement }: { endorsement: Endorsement }) {
 
         <span
           aria-hidden
-          className="endorsement-arrow ml-2 inline-block flex-shrink-0 font-tech text-base transition-transform duration-200 group-hover:translate-x-0.5"
-          style={{ color: 'rgb(var(--accent))' }}
+          className="endorsement-arrow ml-2 inline-block flex-shrink-0 font-tech text-base text-accent transition-transform duration-200 group-hover:translate-x-0.5"
         >
           →
         </span>

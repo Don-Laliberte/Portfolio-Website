@@ -33,11 +33,8 @@ export function Logo({ onHomeClick }: LogoProps) {
         transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         aria-hidden
       />
-      <span
-        className="font-display text-lg font-bold tracking-wide transition-colors duration-200 md:text-xl"
-        style={{ color: 'rgb(var(--text))' }}
-      >
-        <span className="group-hover:[color:rgb(var(--accent-bright))]">Don Laliberte</span>
+      <span className="font-display text-lg font-bold tracking-wide text-foreground transition-colors duration-200 md:text-xl">
+        <span className="group-hover:text-accent-bright">Don Laliberte</span>
       </span>
     </a>
   )

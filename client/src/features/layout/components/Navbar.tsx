@@ -132,16 +132,16 @@ function NavLink({
         onSelect()
       }}
       aria-current={active ? 'page' : undefined}
-      className="group relative inline-flex min-h-[44px] items-center px-3 py-2 font-tech text-base font-normal uppercase tracking-[0.16em] transition-colors duration-200"
-      style={{ color: active ? 'rgb(var(--accent-bright))' : 'rgb(var(--text) / 0.7)' }}
+      className={`group relative inline-flex min-h-[44px] items-center px-3 py-2 font-tech text-base font-normal uppercase tracking-[0.16em] transition-colors duration-200 ${
+        active ? 'text-accent-bright' : 'text-foreground-soft'
+      }`}
     >
       <span>{label}</span>
       <span
         aria-hidden
-        className={`absolute inset-x-3 bottom-1 h-px origin-left transition-transform duration-300 ${
+        className={`absolute inset-x-3 bottom-1 h-px origin-left bg-accent-bright transition-transform duration-300 ${
           active ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'
         }`}
-        style={{ background: 'rgb(var(--accent-bright))' }}
       />
     </a>
   )
