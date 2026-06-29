@@ -490,6 +490,22 @@ export function findScreenDisplayMaterial(
   return found
 }
 
+export function cloneModelWithUniqueResources(model: THREE.Object3D): THREE.Object3D {
+  const clonedModel = model.clone(true)
+
+  clonedModel.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return
+
+    // Three clones share GLTF cache resources by default, but this instance is disposed on unmount.
+    child.geometry = child.geometry.clone()
+    child.material = Array.isArray(child.material)
+      ? child.material.map((material) => material.clone())
+      : child.material.clone()
+  })
+
+  return clonedModel
+}
+
 export function disposeClonedModel(model: THREE.Object3D) {
   model.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return
