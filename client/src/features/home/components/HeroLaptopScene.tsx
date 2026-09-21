@@ -21,6 +21,7 @@ import {
   applyIdleMotion,
   applyIntroTiltReset,
   CLOSED_LID_X,
+  cloneModelWithUniqueResources,
   computeCamFraming,
   computeEmissiveIntensity,
   computeLidRotationX,
@@ -89,7 +90,7 @@ function LaptopModel({
   runnerActive,
 }: LaptopModelProps) {
   const { scene: sourceScene } = useGLTF(MODEL_URL) as { scene: Group }
-  const model = useMemo(() => sourceScene.clone(true), [sourceScene])
+  const model = useMemo(() => cloneModelWithUniqueResources(sourceScene), [sourceScene])
   const loadedTexture = useLoader(THREE.TextureLoader, HEADSHOT_URL)
   const { camera, gl, invalidate } = useThree()
 
