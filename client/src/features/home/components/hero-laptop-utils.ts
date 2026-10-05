@@ -490,13 +490,4 @@ export function findScreenDisplayMaterial(
   return found
 }
 
-export function disposeClonedModel(model: THREE.Object3D) {
-  model.traverse((child) => {
-    if (!(child instanceof THREE.Mesh)) return
-    child.geometry?.dispose()
-    const mats = Array.isArray(child.material) ? child.material : [child.material]
-    for (const m of mats) {
-      m.dispose()
-    }
-  })
-}
+export { cloneModelWithUniqueResources, disposeClonedModel } from './hero-model-clone'
