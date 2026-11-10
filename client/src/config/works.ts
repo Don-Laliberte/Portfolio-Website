@@ -7,6 +7,8 @@ export type WorkProject = {
   tech?: string[]
   liveUrl?: string
   repoUrl?: string
+  /** Optional Devpost project page (hackathon write-ups). */
+  devpostUrl?: string
   highlight?: boolean
   // Optional branding / imagery for future use
   logoSrc?: string
@@ -59,6 +61,42 @@ export const WORK_PROJECTS: WorkProject[] = [
     logoWidth: 160,
     logoHeight: 48,
     images: ['/images/works/CalgaryHacks2026 Image.png'],
+  },
+  {
+    id: 'build-and-connect',
+    name: 'Build & Connect',
+    role: 'Full Stack Developer',
+    timeframe: '2026',
+    description:
+      'CodeTheChange 2026 team project matching early-career Calgary developers with community groups, non-profits, and small businesses that need technical help.',
+    extendedDescription:
+      'Built with my team for CodeTheChange 2026. Build & Connect helps early-career developers find meaningful local projects while letting community groups and small businesses post requests in plain language. We shipped a Three.js landing experience, Mapbox-powered nearby request map, Convex backend with Better Auth, interest-based matching, and real-time opportunity chat. We didn\'t place, but it was a strong end-to-end product for a hackathon weekend.',
+    tech: [
+      'Next.js',
+      'TypeScript',
+      'Convex',
+      'Mapbox',
+      'Three.js',
+    ],
+    modalTech: [
+      'Next.js',
+      'React',
+      'TypeScript',
+      'Convex',
+      'Better Auth',
+      'Mapbox',
+      'Three.js',
+      'Cloudflare Workers',
+      'Fireworks AI',
+    ],
+    liveUrl: 'https://buildandconnect.work',
+    repoUrl: 'https://github.com/ms-dwellers/buildandconnect',
+    devpostUrl: 'https://devpost.com/software/build-connect',
+    logoSrc: '/images/works/BuildAndConnect-Thumbnail.jpg',
+    logoAlt: 'Build & Connect thumbnail',
+    logoWidth: 200,
+    logoHeight: 112,
+    images: ['/images/works/BuildAndConnect-Thumbnail.jpg'],
   },
   {
     id: 'csus-club',
